@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import '../styles/CreateTaskModal.css'
 
-export default function CreateTaskModal({ onSubmit, onClose }) {
   const [taskName, setTaskName] = useState('')
 
   const handleSubmit = (e) => {
