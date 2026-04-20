@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import '../styles/AgentList.css'
 
-export default function AgentList({ agents, onAgentClick }) {
+const AgentList = memo(function AgentList({ agents, onAgentClick }) {
   return (
     <div className="agent-list">
       <h2>AGENTI</h2>
@@ -24,4 +25,6 @@ export default function AgentList({ agents, onAgentClick }) {
       </ul>
     </div>
   )
-}
+})
+
+export default AgentList
