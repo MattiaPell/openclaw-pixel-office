@@ -11,21 +11,27 @@ export default function TaskQueue({ onAssignTask }) {
   const taskRefs = useRef([])
 
   useEffect(() => {
-    if (taskRefs.current.length > 0 && onAssignTask) {
-      const taskElements = taskRefs.current
+    if (onAssignTask) {
+      // Filtra i ref validi (escludendo eventuali buchi nell'array o null)
+      const taskElements = taskRefs.current.filter(el => el !== null)
       const agentElements = document.querySelectorAll('.agent-item')
-      setupDragDrop(taskElements, agentElements, onAssignTask)
+
+      const cleanup = setupDragDrop(taskElements, agentElements, onAssignTask)
+
+      return () => {
+        if (cleanup) cleanup()
+      }
     }
-  }, [onAssignTask])
+  }, [onAssignTask, tasks]) // Aggiunto tasks come dipendenza per sicurezza se dovesse cambiare
 
   return (
     <div className="task-queue">
       <h2>TASK</h2>
       <ul>
-        {tasks.map(task => (
+        {tasks.map((task, index) => (
           <li
             key={task.id}
-            ref={el => taskRefs.current[task.id] = el}
+            ref={el => taskRefs.current[index] = el}
             className="task-item"
             draggable="true"
             data-id={task.id}
