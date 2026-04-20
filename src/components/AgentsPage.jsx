@@ -41,7 +41,7 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
           <div key={agent.id} className="agent-card glass-panel">
             <div className="agent-card-header">
               <div className="agent-avatar-large">
-                <AgentAvatar status={agent.status} size="large" />
+                <AgentAvatar status={agent.status} size="large" id={agent.id} />
               </div>
               <div className="agent-status-pill" data-status={agent.status}>
                 {agent.status}
