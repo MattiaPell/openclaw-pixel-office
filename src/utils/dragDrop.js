@@ -1,33 +1,59 @@
 export const setupDragDrop = (taskElements, agentElements, onAssignTask) => {
   let draggedTask = null
 
-  // Inizia il drag
-  taskElements.forEach(task => {
-    task.addEventListener('dragstart', (e) => {
-      draggedTask = { id: e.target.dataset.id, name: e.target.textContent }
-      e.dataTransfer.setData('text/plain', e.target.dataset.id)
-      e.dataTransfer.effectAllowed = 'move'
-      e.target.classList.add('dragging')
-    })
+  const handleDragStart = (e) => {
+    draggedTask = { id: e.target.dataset.id, name: e.target.textContent }
+    e.dataTransfer.setData('text/plain', e.target.dataset.id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.target.classList.add('dragging')
+  }
 
-    task.addEventListener('dragend', (e) => {
-      e.target.classList.remove('dragging')
-    })
+  const handleDragEnd = (e) => {
+    e.target.classList.remove('dragging')
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    if (draggedTask) {
+      const agentId = e.currentTarget.dataset.id
+      onAssignTask(agentId, draggedTask.name)
+    }
+  }
+
+  // Aggiungi listener
+  taskElements.forEach(task => {
+    if (task) {
+      task.addEventListener('dragstart', handleDragStart)
+      task.addEventListener('dragend', handleDragEnd)
+    }
   })
 
-  // Gestione drop sugli agenti
   agentElements.forEach(agent => {
-    agent.addEventListener('dragover', (e) => {
-      e.preventDefault()
-      e.dataTransfer.dropEffect = 'move'
-    })
+    if (agent) {
+      agent.addEventListener('dragover', handleDragOver)
+      agent.addEventListener('drop', handleDrop)
+    }
+  })
 
-    agent.addEventListener('drop', (e) => {
-      e.preventDefault()
-      if (draggedTask) {
-        const agentId = e.currentTarget.dataset.id
-        onAssignTask(agentId, draggedTask.name)
+  // Ritorna funzione di cleanup
+  return () => {
+    taskElements.forEach(task => {
+      if (task) {
+        task.removeEventListener('dragstart', handleDragStart)
+        task.removeEventListener('dragend', handleDragEnd)
       }
     })
-  })
+
+    agentElements.forEach(agent => {
+      if (agent) {
+        agent.removeEventListener('dragover', handleDragOver)
+        agent.removeEventListener('drop', handleDrop)
+      }
+    })
+  }
 }

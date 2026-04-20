@@ -23,12 +23,19 @@ Una dashboard in stile pixel art per monitorare e gestire gli agenti OpenClaw, c
    ```
 
 ## Docker
+Per avviare l'ambiente completo:
 ```bash
 docker-compose up --build
 ```
 
+**Nota**: Il progetto richiede una rete Docker esterna chiamata `openclaw-net`. Se non esiste, creala con:
+```bash
+docker network create openclaw-net
+```
+
 ## TODO
 - [x] Mockup UI statico
-- [ ] Animazioni sprite (agenti, ufficio)
-- [ ] Integrazione API OpenClaw
-- [ ] Assegnazione task via UI
+- [x] Animazioni sprite (agenti, ufficio)
+- [x] Integrazione API OpenClaw
+- [x] Assegnazione task via UI (Drag & Drop)
+- [ ] Visualizzazione log agenti real-time
