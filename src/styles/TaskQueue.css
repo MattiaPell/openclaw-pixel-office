@@ -2,25 +2,76 @@
   background-color: #1a1a1a;
   border: 2px solid #00ff00;
   padding: 10px;
-  width: 200px;
+  width: 100%;
   color: #fff;
 }
 
 .task-queue h2 {
   margin-top: 0;
-  font-size: 12px;
+  font-size: 10px;
   color: #00ff00;
   border-bottom: 1px solid #00ff00;
   padding-bottom: 5px;
 }
 
+.task-queue ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
 .task-item {
-  padding: 5px;
-  border-bottom: 1px solid #333;
+  padding: 8px;
+  border: 1px solid #333;
+  margin-bottom: 5px;
   font-size: 8px;
   cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #252540;
+  transition: all 0.2s;
 }
 
 .task-item:hover {
   background-color: #003300;
+  border-color: #00ff00;
+}
+
+.task-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.task-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-delete {
+  background: none;
+  border: none;
+  color: #ff5555;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 2px 5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.task-item:hover .task-delete {
+  opacity: 1;
+}
+
+.task-delete:hover {
+  color: #ff7777;
+}
+
+.task-empty {
+  color: #666;
+  text-align: center;
+  padding: 15px;
+  font-size: 8px;
 }

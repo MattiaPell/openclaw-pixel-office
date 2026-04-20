@@ -1,16 +1,51 @@
 import '../styles/OfficeScene.css'
 
-export default function OfficeScene({ agents }) {
+export default function OfficeScene({ agents, onAgentClick }) {
   return (
     <div className="office-scene">
-      <div className="desk"></div>
-      <div className="floor"></div>
-      {agents.map(agent => (
-        <div key={agent.id} className={`agent ${agent.sprite}`} style={{ left: `${agent.id * 100}px` }}>
-          <div className="agent-name">{agent.name}</div>
-          <div className="agent-status">{agent.status}</div>
-        </div>
-      ))}
+      {/* Office background elements */}
+      <div className="office-bg">
+        <div className="wall"></div>
+        <div className="floor"></div>
+        <div className="window"></div>
+        <div className="plant plant-left"></div>
+        <div className="plant plant-right"></div>
+        <div className="clock"></div>
+      </div>
+
+      {/* Desks */}
+      <div className="desks">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="desk">
+            <div className="computer">
+              <div className="monitor"></div>
+              <div className="keyboard"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Agents */}
+      <div className="agents-container">
+        {agents.map((agent, index) => (
+          <div 
+            key={agent.id} 
+            className={`agent ${agent.sprite}`}
+            style={{ left: `${100 + index * 180}px` }}
+            onClick={() => onAgentClick && onAgentClick(agent)}
+            title={`${agent.name} - ${agent.status}`}
+          >
+            <div className="agent-sprite"></div>
+            <div className="agent-label">
+              <span className="agent-name">{agent.name}</span>
+              <span className="agent-task">{agent.task || 'Inattivo'}</span>
+            </div>
+            {agent.status === 'working' && (
+              <div className="work-indicator">⚡</div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,0 +1,92 @@
+.activity-log {
+  background-color: #1a1a1a;
+  border: 2px solid #00aaff;
+  font-size: 8px;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  color: #00aaff;
+  font-weight: bold;
+  border-bottom: 1px solid #333;
+}
+
+.log-header:hover {
+  background-color: #222;
+}
+
+.toggle {
+  font-size: 10px;
+}
+
+.log-entries {
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00aaff #1a1a1a;
+}
+
+.log-empty {
+  padding: 10px;
+  color: #666;
+  text-align: center;
+}
+
+.log-entry {
+  display: flex;
+  gap: 5px;
+  padding: 5px 8px;
+  border-bottom: 1px solid #2a2a2a;
+  align-items: center;
+}
+
+.log-entry:hover {
+  background-color: #222;
+}
+
+.log-entry.error {
+  color: #ff5555;
+  background-color: rgba(255, 85, 85, 0.1);
+}
+
+.log-time {
+  color: #666;
+  font-size: 7px;
+  min-width: 40px;
+}
+
+.log-icon {
+  font-size: 10px;
+}
+
+.log-agent {
+  color: #ffd700;
+  font-weight: bold;
+  min-width: 60px;
+}
+
+.log-details {
+  color: #ccc;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrollbar styling */
+.log-entries::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-entries::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.log-entries::-webkit-scrollbar-thumb {
+  background: #00aaff;
+  border-radius: 3px;
+}

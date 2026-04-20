@@ -2,44 +2,63 @@ import { useState, useEffect, useRef } from 'react'
 import { setupDragDrop } from '../utils/dragDrop'
 import '../styles/TaskQueue.css'
 
-export default function TaskQueue({ onAssignTask }) {
-  const [tasks, setTasks] = useState([
-    { id: 1, name: 'Analisi codice Swift' },
-    { id: 2, name: 'Deploy Docker' },
-    { id: 3, name: 'Backup NAS' }
-  ])
-  const taskRefs = useRef([])
+export default function TaskQueue({ tasks = [], agents = [], onAssignTask, onDeleteTask }) {
+  const taskRefs = useRef({})
+  const [draggedTask, setDraggedTask] = useState(null)
 
   useEffect(() => {
-    if (onAssignTask) {
-      // Filtra i ref validi (escludendo eventuali buchi nell'array o null)
-      const taskElements = taskRefs.current.filter(el => el !== null)
+    if (taskRefs.current && agents.length > 0) {
+      const taskElements = Object.values(taskRefs.current).filter(Boolean)
       const agentElements = document.querySelectorAll('.agent-item')
-
-      const cleanup = setupDragDrop(taskElements, agentElements, onAssignTask)
-
-      return () => {
-        if (cleanup) cleanup()
-      }
+      setupDragDrop(taskElements, agentElements, onAssignTask)
     }
-  }, [onAssignTask, tasks]) // Aggiunto tasks come dipendenza per sicurezza se dovesse cambiare
+  }, [tasks, agents, onAssignTask])
+
+  const handleDragStart = (e, task) => {
+    setDraggedTask(task)
+    e.dataTransfer.setData('text/plain', task.id.toString())
+    e.dataTransfer.effectAllowed = 'move'
+    e.target.classList.add('dragging')
+  }
+
+  const handleDragEnd = (e) => {
+    e.target.classList.remove('dragging')
+    setDraggedTask(null)
+  }
 
   return (
     <div className="task-queue">
-      <h2>TASK</h2>
+      <h2>📋 TASK</h2>
       <ul>
-        {tasks.map((task, index) => (
-          <li
-            key={task.id}
-            ref={el => taskRefs.current[index] = el}
-            className="task-item"
-            draggable="true"
-            data-id={task.id}
-          >
-            {task.name}
-          </li>
-        ))}
+        {tasks.length === 0 ? (
+          <li className="task-empty">Nessun task - Clicca + per crearne uno</li>
+        ) : (
+          tasks.map(task => (
+            <li
+              key={task.id}
+              ref={el => taskRefs.current[task.id] = el}
+              className="task-item"
+              draggable="true"
+              data-id={task.id}
+              onDragStart={(e) => handleDragStart(e, task)}
+              onDragEnd={handleDragEnd}
+            >
+              <span className="task-name">{task.name}</span>
+              <button 
+                className="task-delete"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDeleteTask && onDeleteTask(task.id)
+                }}
+                title="Elimina task"
+              >
+                ✕
+              </button>
+            </li>
+          ))
+        )}
       </ul>
+      <p className="task-hint">Trascina un task su un agente per assegnarlo</p>
     </div>
   )
 }
