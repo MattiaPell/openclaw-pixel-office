@@ -7,10 +7,14 @@ export default function TaskQueue({ tasks = [], agents = [], onAssignTask, onDel
   const [draggedTask, setDraggedTask] = useState(null)
 
   useEffect(() => {
+    let cleanup = null
     if (taskRefs.current && agents.length > 0) {
       const taskElements = Object.values(taskRefs.current).filter(Boolean)
       const agentElements = document.querySelectorAll('.agent-item')
-      setupDragDrop(taskElements, agentElements, onAssignTask)
+      cleanup = setupDragDrop(taskElements, agentElements, onAssignTask)
+    }
+    return () => {
+      if (cleanup) cleanup()
     }
   }, [tasks, agents, onAssignTask])
 

@@ -92,7 +92,7 @@ export function useOpenClawAPI() {
       setError(null)
     } catch (err) {
       console.error('Error fetching agents:', err)
-      setError(err.message)
+      setError('Failed to fetch agents data. Please try again later.')
       setIsOnline(false)
       // Fallback to last known agents (don't overwrite)
       if (lastAgents.length > 0 && agents.length === 0) {
@@ -128,8 +128,8 @@ export function useOpenClawAPI() {
       await fetchAgents()
     } catch (err) {
       console.error('Error assigning task:', err)
-      addLogEntry(`Sistema`, 'error', `Errore assegnazione: ${err.message}`)
-      throw err
+      addLogEntry(`System`, 'error', `Error occurred while assigning the task.`)
+      throw new Error('Error occurred while assigning the task.')
     }
   }, [agents, fetchAgents, addLogEntry])
 
