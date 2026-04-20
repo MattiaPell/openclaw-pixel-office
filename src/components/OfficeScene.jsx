@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import AgentAvatar from './AgentAvatar'
 import '../styles/OfficeScene.css'
 
 const OfficeScene = memo(function OfficeScene({ agents, onAgentClick }) {
@@ -31,12 +32,12 @@ const OfficeScene = memo(function OfficeScene({ agents, onAgentClick }) {
         {agents.map((agent, index) => (
           <div 
             key={agent.id} 
-            className={`agent ${agent.sprite}`}
+            className={`agent ${agent.status}`}
             style={{ left: `${100 + index * 180}px` }}
             onClick={() => onAgentClick && onAgentClick(agent)}
             title={`${agent.name} - ${agent.status}`}
           >
-            <div className="agent-sprite"></div>
+            <AgentAvatar status={agent.status} />
             <div className="agent-label">
               <span className="agent-name">{agent.name}</span>
               <span className="agent-task">{agent.task || 'Inattivo'}</span>
