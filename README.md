@@ -101,12 +101,17 @@ openclaw-pixel-office/
 
 Siamo costantemente al lavoro per rendere l'ufficio degli agenti più efficiente e divertente. Ecco alcune delle evoluzioni pianificate:
 
-- [ ] 🔔 **Notifiche Push**: Ricevi avvisi sul browser quando un task viene completato o se un agente richiede attenzione.
-- [ ] 📥 **Esportazione Dati**: Possibilità di scaricare i log di attività e i report dei task in formato CSV o JSON.
+### Alta priorità
+- [ ] **Visualizzazione dei dati della dashboard originale**
+- [ ] **Nuovo design per gli agent**: Uno stile più umano con il corpo completo.
 - [ ] 📊 **Advanced Analytics**: Dashboard con grafici sulle performance degli agenti, tempi medi di completamento e statistiche di utilizzo modelli.
-- [ ] 🔑 **Multi-user & Auth**: Sistema di login per gestire uffici separati per diversi utenti o team.
 - [ ] 🌿 **Nuovi Temi & Ambienti**: Ambientazioni alternative per l'ufficio (es. Cyberpunk City, Foresta Incantata, Base Spaziale).
+### Media Priorità
+- [ ] 📥 **Esportazione Dati**: Possibilità di scaricare i log di attività e i report dei task in formato CSV o JSON.
 - [ ] 📱 **Mobile Optimization (PWA)**: Miglioramento dell'interfaccia per dispositivi mobili e installazione come Progressive Web App.
+### Bassa priorità
+- [ ] 🔔 **Notifiche Push**: Ricevi avvisi sul browser quando un task viene completato o se un agente richiede attenzione.
+- [ ] 🔑 **Multi-user & Auth**: Sistema di login per gestire uffici separati per diversi utenti o team.
 - [ ] 🤖 **Integrazione Multi-Provider**: Supporto nativo per connettersi contemporaneamente a più gateway OpenClaw.
 
 ## 🤝 Contributi
