@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3004;
-const SESSIONS_FILE = path.join(process.env.HOME || '/home/ubuntu', '.openclaw/agents/main/sessions/sessions.json');
+const SESSIONS_FILE = path.join(process.env.HOME || '/root', '.openclaw/agents/main/sessions/sessions.json');
 
 function readJson(filePath, fallback = null) {
   try {
