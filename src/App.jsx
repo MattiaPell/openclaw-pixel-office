@@ -54,7 +54,7 @@ function App() {
 
       {error && (
         <div className="error-banner">
-          ⚠️ Errore: {error}
+          ⚠️ Error: {error}
         </div>
       )}
 
