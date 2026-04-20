@@ -118,35 +118,41 @@ function App() {
 
   return (
     <div className={`app theme-${theme}`}>
-      <header className="header">
-        <h1>🦾 OPENCLAW PIXEL OFFICE</h1>
-        <div className="status-bar">
-          <span className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
-            {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
+      <header className="header glass-panel">
+        <div className="header-left">
+          <h1 className="pixel-font">🦾 OPENCLAW PIXEL OFFICE</h1>
+          <span className={`status-pill ${isOnline ? 'online' : 'offline'}`}>
+            {isOnline ? 'ONLINE' : 'OFFLINE'}
           </span>
-          <span className="mode-badge">📁 LOCALE</span>
+        </div>
+        <div className="status-bar">
+          <span className="mode-badge">MODALITÀ LOCALE</span>
           {!isOnline && (
             <button className="retry-btn" onClick={retry}>
               RIPROVA
             </button>
           )}
-          <button 
-            className="icon-btn" 
-            onClick={() => setShowAchievements(true)}
-            title="Achievements"
-          >
-            🏆
-            {achievements.length > 0 && (
-              <span className="badge">{achievements.length}</span>
-            )}
-          </button>
-          <button 
-            className="icon-btn" 
-            onClick={() => setShowSettings(true)}
-            title="Impostazioni"
-          >
-            ⚙️
-          </button>
+          <div className="header-actions">
+            <button
+              className="action-pill"
+              onClick={() => setShowAchievements(true)}
+              title="Achievements"
+            >
+              <span className="icon">🏆</span>
+              <span className="label">Achievements</span>
+              {achievements.length > 0 && (
+                <span className="pill-badge">{achievements.length}</span>
+              )}
+            </button>
+            <button
+              className="action-pill"
+              onClick={() => setShowSettings(true)}
+              title="Impostazioni"
+            >
+              <span className="icon">⚙️</span>
+              <span className="label">Impostazioni</span>
+            </button>
+          </div>
         </div>
       </header>
 
