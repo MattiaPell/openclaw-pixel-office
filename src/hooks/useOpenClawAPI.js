@@ -73,9 +73,12 @@ export function useOpenClawAPI() {
       const data = await response.json()
       const newAgents = data.agents || []
       
+      // Create a map for faster lookup (O(N) instead of O(N^2) in the loop)
+      const oldAgentsMap = new Map(agents.map(a => [a.id, a]))
+
       // Detect changes for activity log
       newAgents.forEach(newAgent => {
-        const oldAgent = agents.find(a => a.id === newAgent.id)
+        const oldAgent = oldAgentsMap.get(newAgent.id)
         if (oldAgent) {
           if (oldAgent.status !== newAgent.status && newAgent.status === 'working') {
             addLogEntry(newAgent.name, 'started', newAgent.task || 'Nuovo task')
