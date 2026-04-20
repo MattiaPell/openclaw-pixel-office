@@ -28,13 +28,13 @@ export function useOpenClawAPI() {
 
   const assignTask = async (agentId, taskName) => {
     try {
-      const response = await fetch(`http://gateway.openclaw:8080/api/agents/${agentId}/task`, {
+      const gatewayUrl = import.meta.env.VITE_OPENCLAW_GATEWAY_URL || 'http://localhost:8080'
+      const response = await fetch(`${gatewayUrl}/api/agents/${agentId}/task`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task: taskName })
       })
-      const gatewayUrl = import.meta.env.VITE_OPENCLAW_GATEWAY_URL || 'http://localhost:8080'
-      const response = await fetch(`${gatewayUrl}/api/agents/${agentId}/task`, {
+      if (!response.ok) throw new Error('Failed to assign task')
       await fetchAgents() // Refresh dopo assegnazione
     } catch (err) {
       console.error('Error assigning task:', err)
