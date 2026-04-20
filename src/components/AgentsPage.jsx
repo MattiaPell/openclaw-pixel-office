@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import AgentAvatar from './AgentAvatar'
 import '../styles/AgentsPage.css'
 
 const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
@@ -39,7 +40,9 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
         {agents.map(agent => (
           <div key={agent.id} className="agent-card glass-panel">
             <div className="agent-card-header">
-              <div className="agent-avatar-large" style={{ backgroundImage: `url(/sprites/${agent.sprite || 'claw-idle'}.png)` }}></div>
+              <div className="agent-avatar-large">
+                <AgentAvatar status={agent.status} size="large" id={agent.id} />
+              </div>
               <div className="agent-status-pill" data-status={agent.status}>
                 {agent.status}
               </div>

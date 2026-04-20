@@ -1,3 +1,4 @@
+import AgentAvatar from './AgentAvatar'
 import '../styles/AgentModal.css'
 
 export default function AgentModal({ agent, onClose }) {
@@ -18,7 +19,7 @@ export default function AgentModal({ agent, onClose }) {
         <button className="modal-close" onClick={onClose}>✕</button>
         
         <div className="agent-header">
-          <div className={`agent-avatar ${agent.sprite}`}></div>
+          <AgentAvatar status={agent.status} size="large" id={agent.id} />
           <div className="agent-info">
             <h2>{agent.name}</h2>
             <span 
