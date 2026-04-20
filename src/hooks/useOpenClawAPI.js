@@ -127,14 +127,50 @@ export function useOpenClawAPI() {
     return entry
   }, [])
 
-  const assignTask = useCallback((agentId, taskName) => {
+  const addAgent = useCallback((agentData) => {
+    const newAgent = {
+      id: `agent-${Date.now()}`,
+      status: 'idle',
+      completedTasks: 0,
+      sprite: 'claw-idle',
+      ...agentData
+    }
+    setAgents(prev => {
+      const updated = [...prev, newAgent]
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+    addLogEntry('Sistema', 'created_agent', newAgent.name)
+    return newAgent
+  }, [addLogEntry])
+
+  const updateAgent = useCallback((agentId, updates) => {
+    setAgents(prev => {
+      const updated = prev.map(a => a.id === agentId ? { ...a, ...updates } : a)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  const deleteAgent = useCallback((agentId) => {
     const agent = agents.find(a => a.id === agentId)
-    if (!agent) return
+    setAgents(prev => {
+      const updated = prev.filter(a => a.id !== agentId)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+    if (agent) addLogEntry('Sistema', 'deleted_agent', agent.name)
+  }, [agents, addLogEntry])
+
+  const assignTask = useCallback((agentId, taskId) => {
+    const agent = agents.find(a => a.id === agentId)
+    const task = tasks.find(t => t.id === taskId)
+    if (!agent || !task) return
 
     setAgents(prev => {
       const updated = prev.map(a => {
         if (a.id === agentId) {
-          return { ...a, status: 'working', task: taskName }
+          return { ...a, status: 'working', task: task.name, currentTaskId: taskId }
         }
         return a
       })
@@ -142,25 +178,37 @@ export function useOpenClawAPI() {
       return updated
     })
 
-    addLogEntry(agent.name, 'assigned', taskName)
+    setTasks(prev => {
+      const updated = prev.map(t => t.id === taskId ? { ...t, status: 'in_progress' } : t)
+      localStorage.setItem(TASKS_KEY, JSON.stringify(updated))
+      return updated
+    })
+
+    addLogEntry(agent.name, 'assigned', task.name)
     
-    // Simulate task completion after random time (for demo)
+    // Simulate task completion
     setTimeout(() => {
       setAgents(prev => {
         const updated = prev.map(a => {
-          if (a.id === agentId && a.status === 'working') {
+          if (a.id === agentId && a.currentTaskId === taskId) {
             const newCompleted = (a.completedTasks || 0) + 1
             addLogEntry(a.name, 'completed', a.task || 'Task')
             checkAchievements(agentId)
-            return { ...a, status: 'idle', task: null, completedTasks: newCompleted }
+            return { ...a, status: 'idle', task: null, currentTaskId: null, completedTasks: newCompleted }
           }
           return a
         })
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
         return updated
       })
-    }, Math.random() * 30000 + 10000) // 10-40 seconds
-  }, [agents, addLogEntry, checkAchievements])
+
+      setTasks(prev => {
+        const updated = prev.map(t => t.id === taskId ? { ...t, status: 'completed' } : t)
+        localStorage.setItem(TASKS_KEY, JSON.stringify(updated))
+        return updated
+      })
+    }, Math.random() * 20000 + 5000)
+  }, [agents, tasks, addLogEntry, checkAchievements])
 
   // Create new task
   const createTask = useCallback((name) => {
@@ -239,6 +287,9 @@ export function useOpenClawAPI() {
     getAgentDetails,
     retry,
     addLogEntry,
-    checkAchievements
+    checkAchievements,
+    addAgent,
+    updateAgent,
+    deleteAgent
   }
 }
