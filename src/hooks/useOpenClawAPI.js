@@ -13,8 +13,31 @@ export function useOpenClawAPI() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isOnline, setIsOnline] = useState(true)
+  const [connectionMode, setConnectionMode] = useState('local')
   const logIdRef = useRef(0)
   const startTime = useRef(Date.now())
+
+  const GATEWAY_URL = import.meta.env.VITE_OPENCLAW_GATEWAY_URL
+
+  const fetchExternalAgents = useCallback(async () => {
+    if (!GATEWAY_URL) return null
+    try {
+      const response = await fetch(`${GATEWAY_URL}/agents`, { signal: AbortController.timeout?.(5000) })
+      if (!response.ok) throw new Error('Network response was not ok')
+      const data = await response.json()
+      return data.map(a => ({
+        id: a.id || a.name,
+        name: a.name,
+        status: a.status || 'idle',
+        task: a.current_task || null,
+        completedTasks: a.completed_tasks || 0,
+        sprite: a.status === 'working' ? 'claw-working' : 'claw-idle'
+      }))
+    } catch (e) {
+      console.error('Failed to fetch external agents:', e)
+      return null
+    }
+  }, [GATEWAY_URL])
 
   // Achievement definitions
   const ACHIEVEMENT_DEFS = [
@@ -30,23 +53,38 @@ export function useOpenClawAPI() {
 
   // Load saved state from localStorage on init
   useEffect(() => {
-    const savedAgents = localStorage.getItem(STORAGE_KEY)
     const savedTasks = localStorage.getItem(TASKS_KEY)
     const savedLog = localStorage.getItem(LOG_KEY)
     const savedAchievements = localStorage.getItem(ACHIEVEMENTS_KEY)
 
-    // Load agents from config or saved state
-    const configAgents = import.meta.env.VITE_AGENTS
-    if (savedAgents) {
-      try {
-        setAgents(JSON.parse(savedAgents))
-      } catch (e) {
-        console.warn('Failed to parse saved agents:', e)
-        setAgents(configAgents ? JSON.parse(configAgents) : [])
+    const initAgents = async () => {
+      setLoading(true)
+      const externalAgents = await fetchExternalAgents()
+
+      if (externalAgents) {
+        setAgents(externalAgents)
+        setConnectionMode('cloud')
+        setIsOnline(true)
+      } else {
+        // Fallback to local
+        const savedAgents = localStorage.getItem(STORAGE_KEY)
+        const configAgents = import.meta.env.VITE_AGENTS
+        if (savedAgents) {
+          try {
+            setAgents(JSON.parse(savedAgents))
+          } catch (e) {
+            setAgents(configAgents ? JSON.parse(configAgents) : [])
+          }
+        } else {
+          setAgents(configAgents ? JSON.parse(configAgents) : [])
+        }
+        setConnectionMode('local')
+        setIsOnline(false)
       }
-    } else {
-      setAgents(configAgents ? JSON.parse(configAgents) : [])
+      setLoading(false)
     }
+
+    initAgents()
 
     if (savedTasks) {
       try {
@@ -266,10 +304,37 @@ export function useOpenClawAPI() {
   }, [agents, activityLog])
 
   // Retry connection
-  const retry = useCallback(() => {
-    setIsOnline(true)
-    setError(null)
-  }, [])
+  const retry = useCallback(async () => {
+    setLoading(true)
+    const externalAgents = await fetchExternalAgents()
+    if (externalAgents) {
+      setAgents(externalAgents)
+      setConnectionMode('cloud')
+      setIsOnline(true)
+      setError(null)
+    } else {
+      setIsOnline(false)
+      setError('Impossibile connettersi al Gateway OpenClaw')
+    }
+    setLoading(false)
+  }, [fetchExternalAgents])
+
+  // Periodic polling for cloud mode
+  useEffect(() => {
+    if (connectionMode !== 'cloud') return
+
+    const interval = setInterval(async () => {
+      const externalAgents = await fetchExternalAgents()
+      if (externalAgents) {
+        setAgents(externalAgents)
+        setIsOnline(true)
+      } else {
+        setIsOnline(false)
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [connectionMode, fetchExternalAgents])
 
   return {
     agents,
@@ -279,7 +344,7 @@ export function useOpenClawAPI() {
     loading,
     error,
     isOnline,
-    connectionMode: 'local',
+    connectionMode,
     assignTask,
     createTask,
     updateTask,
