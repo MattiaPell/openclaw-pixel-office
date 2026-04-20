@@ -1,0 +1,12 @@
+# Dockerfile for API Server
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy only the API server file
+COPY api-server.js ./
+
+# Run directly with node
+CMD ["node", "api-server.js"]
+
+EXPOSE 3004
