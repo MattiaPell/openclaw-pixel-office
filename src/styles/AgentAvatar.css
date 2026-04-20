@@ -2,14 +2,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  --skin-color: #fca5a5;
+  --hair-color: #1a1a1a;
+  --hoodie-color: #334155;
+  --jeans-color: #1e293b;
+  --accent-color: #3b82f6;
 }
 
 .agent-avatar.size-medium .agent-body-container {
-  transform: scale(1.2);
+  transform: scale(1.3);
 }
 
 .agent-avatar.size-large .agent-body-container {
-  transform: scale(2.2);
+  transform: scale(2.0);
 }
 
 .agent-avatar.size-small .agent-body-container {
@@ -18,21 +23,22 @@
 
 .agent-body-container {
   width: 40px;
-  height: 60px;
+  height: 80px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
 
+/* Head */
 .agent-head {
-  width: 20px;
-  height: 20px;
-  background-color: #fca5a5;
+  width: 24px;
+  height: 24px;
+  background-color: var(--skin-color);
   border-radius: 6px;
   position: relative;
-  z-index: 5;
+  z-index: 10;
   box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1);
 }
 
@@ -41,17 +47,29 @@
   top: -4px;
   left: -2px;
   right: -2px;
-  height: 10px;
-  background-color: #451a03; /* Dark brown */
-  border-radius: 6px 6px 2px 2px;
-  z-index: 6;
+  height: 12px;
+  background-color: var(--hair-color);
+  border-radius: 8px 8px 2px 2px;
+  z-index: 11;
+}
+
+/* Messy hair effect */
+.agent-hair::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 4px;
+  width: 8px;
+  height: 4px;
+  background-color: var(--hair-color);
+  border-radius: 4px;
 }
 
 .eyes {
   position: absolute;
-  top: 8px;
-  left: 4px;
-  right: 4px;
+  top: 10px;
+  left: 5px;
+  right: 5px;
   display: flex;
   justify-content: space-between;
 }
@@ -62,172 +80,202 @@
   height: 4px;
   background-color: #0f172a;
   border-radius: 50%;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
 }
 
 .mouth {
   position: absolute;
-  bottom: 4px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
   width: 6px;
-  height: 2px;
-  background-color: #b91c1c;
+  height: 1.5px;
+  background-color: rgba(0,0,0,0.2);
   border-radius: 1px;
 }
 
+/* Torso (Hoodie) */
 .agent-torso {
-  width: 24px;
-  height: 28px;
-  background-color: var(--accent-primary, #3b82f6);
-  border-radius: 4px;
+  width: 28px;
+  height: 32px;
+  background-color: var(--hoodie-color);
+  border-radius: 6px;
   margin-top: -2px;
   position: relative;
-  z-index: 4;
-  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.15);
-  display: flex;
-  justify-content: center;
+  z-index: 5;
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.2),
+              inset 3px 3px 0 rgba(255,255,255,0.1);
 }
 
-/* Tie or Detail on Torso */
+/* Hoodie Pocket */
+.agent-torso::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  width: 18px;
+  height: 10px;
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 4px 4px 2px 2px;
+}
+
+/* Hoodie Strings */
 .agent-torso::before {
   content: '';
-  width: 4px;
-  height: 10px;
-  background: rgba(0,0,0,0.2);
-  margin-top: 4px;
-  border-radius: 2px;
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 8px;
+  border-left: 2px solid rgba(255,255,255,0.2);
+  border-right: 2px solid rgba(255,255,255,0.2);
 }
 
+/* Arms */
 .arm {
   position: absolute;
-  top: 2px;
-  width: 8px;
-  height: 18px;
-  background-color: var(--accent-primary, #3b82f6);
-  border-radius: 4px;
+  top: 4px;
+  width: 10px;
+  height: 24px;
+  background-color: var(--hoodie-color);
+  border-radius: 5px;
+  z-index: 4;
 }
 
-.arm-l { left: -7px; transform-origin: top center; }
-.arm-r { right: -7px; transform-origin: top center; }
+.arm-l {
+  left: -8px;
+  transform-origin: top center;
+  box-shadow: inset 1px -2px 0 rgba(0,0,0,0.1);
+}
+.arm-r {
+  right: -8px;
+  transform-origin: top center;
+  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1);
+}
 
 .hand {
   position: absolute;
   bottom: -4px;
-  left: 0;
+  left: 1px;
   width: 8px;
   height: 8px;
-  background-color: #fca5a5;
-  border-radius: 50%;
+  background-color: var(--skin-color);
+  border-radius: 3px;
 }
 
+/* Legs (Jeans) */
 .legs {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   margin-top: -2px;
+  z-index: 3;
 }
 
 .leg {
-  width: 8px;
-  height: 20px;
-  background-color: #334155;
+  width: 11px;
+  height: 28px;
+  background-color: var(--jeans-color);
   border-radius: 2px;
   position: relative;
+  box-shadow: inset -2px -3px 0 rgba(0,0,0,0.2);
 }
 
 .foot {
   position: absolute;
-  bottom: -4px;
-  left: -2px;
-  width: 12px;
-  height: 6px;
-  background-color: #1e293b;
-  border-radius: 4px 4px 2px 2px;
+  bottom: -3px;
+  left: -1px;
+  width: 13px;
+  height: 7px;
+  background-color: #333;
+  border-radius: 3px 3px 1px 1px;
 }
+
+/* Status specific colors */
+.agent-humanoid.working { --accent-color: #f59e0b; }
+.agent-humanoid.idle { --accent-color: #3b82f6; }
+.agent-humanoid.celebrating { --accent-color: #10b981; }
 
 /* Animations */
 .agent-humanoid.idle .agent-body-container {
-  animation: avatar-idle-breath 3s ease-in-out infinite;
+  animation: humanoid-idle-breath 4s ease-in-out infinite;
 }
 
-.agent-humanoid.thinking .agent-body-container {
-  animation: avatar-thinking-head 2s ease-in-out infinite;
+@keyframes humanoid-idle-breath {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-2px) scaleY(1.02); }
 }
 
+.agent-humanoid.thinking .agent-head {
+  animation: humanoid-thinking-head 3s ease-in-out infinite;
+}
 .agent-humanoid.thinking .arm-r {
-  animation: avatar-scratch 1s ease-in-out infinite;
+  animation: humanoid-scratch 1.5s ease-in-out infinite;
+}
+
+@keyframes humanoid-thinking-head {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(10deg); }
+}
+
+@keyframes humanoid-scratch {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(130deg); }
 }
 
 .agent-humanoid.working .agent-body-container {
-  animation: avatar-working-lean 1s ease-in-out infinite;
+  animation: humanoid-working-lean 2s ease-in-out infinite;
 }
-
 .agent-humanoid.working .arm-l, .agent-humanoid.working .arm-r {
-  animation: avatar-typing 0.2s infinite alternate;
+  animation: humanoid-typing 0.15s infinite alternate;
 }
 
-@keyframes avatar-idle-breath {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(-3px) scaleY(1.03); }
+@keyframes humanoid-working-lean {
+  0%, 100% { transform: rotate(-2deg) translateY(2px); }
+  50% { transform: rotate(2deg) translateY(2px); }
 }
 
-@keyframes avatar-working-lean {
-  0%, 100% { transform: rotate(-5deg); }
-  50% { transform: rotate(5deg); }
+@keyframes humanoid-typing {
+  from { transform: rotate(-20deg); }
+  to { transform: rotate(10deg); }
 }
 
-@keyframes avatar-typing {
-  from { transform: rotate(-25deg); }
-  to { transform: rotate(25deg); }
-}
-
-@keyframes avatar-thinking-head {
-  0%, 100% { transform: rotate(0); }
-  50% { transform: rotate(15deg); }
-}
-
-@keyframes avatar-scratch {
-  0%, 100% { transform: rotate(0); }
-  50% { transform: rotate(145deg); }
-}
-
-/* Walking Animation */
 .agent-humanoid.walking .leg-l {
-  animation: avatar-leg-swing 0.4s infinite alternate;
+  animation: humanoid-leg-swing 0.5s infinite alternate;
 }
 .agent-humanoid.walking .leg-r {
-  animation: avatar-leg-swing 0.4s infinite alternate-reverse;
+  animation: humanoid-leg-swing 0.5s infinite alternate-reverse;
 }
 .agent-humanoid.walking .arm-l {
-  animation: avatar-arm-swing 0.4s infinite alternate-reverse;
+  animation: humanoid-arm-swing 0.5s infinite alternate-reverse;
 }
 .agent-humanoid.walking .arm-r {
-  animation: avatar-arm-swing 0.4s infinite alternate;
+  animation: humanoid-arm-swing 0.5s infinite alternate;
 }
 
-@keyframes avatar-leg-swing {
+@keyframes humanoid-leg-swing {
+  from { transform: rotate(-20deg); }
+  to { transform: rotate(20deg); }
+}
+
+@keyframes humanoid-arm-swing {
   from { transform: rotate(-25deg); }
   to { transform: rotate(25deg); }
 }
 
-@keyframes avatar-arm-swing {
-  from { transform: rotate(-35deg); }
-  to { transform: rotate(35deg); }
-}
-
-/* Celebration Animation */
 .agent-humanoid.celebrating .agent-body-container {
-  animation: avatar-jump 0.5s ease-in-out infinite;
+  animation: humanoid-jump 0.6s ease-in-out infinite;
 }
 .agent-humanoid.celebrating .arm-l, .agent-humanoid.celebrating .arm-r {
-  animation: avatar-wave 0.2s infinite alternate;
+  animation: humanoid-wave 0.3s infinite alternate;
 }
 
-@keyframes avatar-jump {
+@keyframes humanoid-jump {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-15px); }
 }
 
-@keyframes avatar-wave {
-  from { transform: rotate(110deg); }
-  to { transform: rotate(160deg); }
+@keyframes humanoid-wave {
+  from { transform: rotate(100deg); }
+  to { transform: rotate(150deg); }
 }

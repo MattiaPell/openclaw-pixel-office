@@ -22,16 +22,28 @@ export function useOpenClawAPI() {
   const fetchExternalAgents = useCallback(async () => {
     if (!GATEWAY_URL) return null
     try {
-      const response = await fetch(`${GATEWAY_URL}/agents`, { signal: AbortSignal.timeout?.(5000) })
-      if (!response.ok) throw new Error('Network response was not ok')
+      // Use a standard controller for better compatibility if AbortSignal.timeout is missing
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(`${GATEWAY_URL}/agents`, { signal: controller.signal })
+      clearTimeout(timeoutId);
+
+      if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`)
       const data = await response.json()
+
+      if (!Array.isArray(data)) {
+        console.warn('Received non-array data from gateway:', data);
+        return null;
+      }
+
       return data.map(a => ({
-        id: a.id || a.name,
-        name: a.name,
+        id: a.id || a.name || Math.random().toString(36).substr(2, 9),
+        name: a.name || 'Agente Sconosciuto',
         status: a.status || 'idle',
         task: a.current_task || null,
         completedTasks: a.completed_tasks || 0,
-        sprite: a.status === 'working' ? 'claw-working' : 'claw-idle'
+        sprite: a.status === 'working' ? 'working' : 'idle'
       }))
     } catch (e) {
       console.error('Failed to fetch external agents:', e)

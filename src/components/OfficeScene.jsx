@@ -37,7 +37,7 @@ const OfficeScene = memo(function OfficeScene({ agents, onAgentClick }) {
             onClick={() => onAgentClick && onAgentClick(agent)}
             title={`${agent.name} - ${agent.status}`}
           >
-            <AgentAvatar status={agent.status} />
+            <AgentAvatar status={agent.status} colorSeed={index} id={agent.id} />
             <div className="agent-label">
               <span className="agent-name">{agent.name}</span>
               <span className="agent-task">{agent.task || 'Inattivo'}</span>
