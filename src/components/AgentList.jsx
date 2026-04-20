@@ -1,6 +1,6 @@
 import '../styles/AgentList.css'
 
-export default function AgentList({ agents }) {
+export default function AgentList({ agents, onAgentClick }) {
   return (
     <div className="agent-list">
       <h2>AGENTI</h2>
@@ -11,8 +11,14 @@ export default function AgentList({ agents }) {
             className={`agent-item ${agent.status}`}
             data-id={agent.id}
           >
-            <span className="agent-name">{agent.name}</span>
-            <span className="agent-task">{agent.task || 'Nessun task'}</span>
+            <button
+              className="agent-button"
+              onClick={() => onAgentClick && onAgentClick(agent)}
+              aria-label={`Visualizza dettagli per ${agent.name}`}
+            >
+              <span className="agent-name">{agent.name}</span>
+              <span className="agent-task">{agent.task || 'Nessun task'}</span>
+            </button>
           </li>
         ))}
       </ul>
