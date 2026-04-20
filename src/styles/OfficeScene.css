@@ -56,8 +56,21 @@
 
 .claw-idle {
   background-image: url('/sprites/claw-idle.png');
+  background-size: 32px 32px;
 }
 
 .claw-working {
   background-image: url('/sprites/claw-working.png');
+  background-size: 32px 32px;
+}
+
+.claw-walking {
+  background-image: url('/sprites/claw-walking.png');
+  background-size: 64px 32px;
+  animation: walk-animation 0.5s steps(2) infinite;
+}
+
+@keyframes walk-animation {
+  0% { background-position: 0 0; }
+  100% { background-position: -32px 0; }
 }
