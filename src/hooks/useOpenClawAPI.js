@@ -22,7 +22,7 @@ export function useOpenClawAPI() {
   const fetchExternalAgents = useCallback(async () => {
     if (!GATEWAY_URL) return null
     try {
-      const response = await fetch(`${GATEWAY_URL}/agents`, { signal: AbortController.timeout?.(5000) })
+      const response = await fetch(`${GATEWAY_URL}/agents`, { signal: AbortSignal.timeout?.(5000) })
       if (!response.ok) throw new Error('Network response was not ok')
       const data = await response.json()
       return data.map(a => ({

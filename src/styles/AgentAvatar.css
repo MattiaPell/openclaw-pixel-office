@@ -5,74 +5,120 @@
 }
 
 .agent-avatar.size-medium .agent-body-container {
-  transform: scale(1);
+  transform: scale(1.2);
 }
 
 .agent-avatar.size-large .agent-body-container {
-  transform: scale(1.5);
+  transform: scale(2.2);
 }
 
 .agent-avatar.size-small .agent-body-container {
-  transform: scale(0.7);
+  transform: scale(0.9);
 }
 
 .agent-body-container {
-  width: 32px;
-  height: 48px;
+  width: 40px;
+  height: 60px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4));
 }
 
 .agent-head {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   background-color: #fca5a5;
-  border-radius: 4px;
+  border-radius: 6px;
   position: relative;
-  z-index: 3;
+  z-index: 5;
+  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1);
+}
+
+.agent-hair {
+  position: absolute;
+  top: -4px;
+  left: -2px;
+  right: -2px;
+  height: 10px;
+  background-color: #451a03; /* Dark brown */
+  border-radius: 6px 6px 2px 2px;
+  z-index: 6;
 }
 
 .eyes {
   position: absolute;
-  top: 6px;
-  left: 3px;
-  right: 3px;
+  top: 8px;
+  left: 4px;
+  right: 4px;
   display: flex;
   justify-content: space-between;
 }
 
 .eyes::before, .eyes::after {
   content: '';
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
   background-color: #0f172a;
   border-radius: 50%;
 }
 
+.mouth {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 2px;
+  background-color: #b91c1c;
+  border-radius: 1px;
+}
+
 .agent-torso {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 28px;
   background-color: var(--accent-primary, #3b82f6);
   border-radius: 4px;
   margin-top: -2px;
   position: relative;
-  z-index: 2;
+  z-index: 4;
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.15);
+  display: flex;
+  justify-content: center;
+}
+
+/* Tie or Detail on Torso */
+.agent-torso::before {
+  content: '';
+  width: 4px;
+  height: 10px;
+  background: rgba(0,0,0,0.2);
+  margin-top: 4px;
+  border-radius: 2px;
 }
 
 .arm {
   position: absolute;
   top: 2px;
-  width: 6px;
-  height: 14px;
+  width: 8px;
+  height: 18px;
   background-color: var(--accent-primary, #3b82f6);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
-.arm-l { left: -5px; transform-origin: top center; }
-.arm-r { right: -5px; transform-origin: top center; }
+.arm-l { left: -7px; transform-origin: top center; }
+.arm-r { right: -7px; transform-origin: top center; }
+
+.hand {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: #fca5a5;
+  border-radius: 50%;
+}
 
 .legs {
   display: flex;
@@ -81,10 +127,21 @@
 }
 
 .leg {
-  width: 6px;
-  height: 14px;
+  width: 8px;
+  height: 20px;
   background-color: #334155;
-  border-radius: 0 0 3px 3px;
+  border-radius: 2px;
+  position: relative;
+}
+
+.foot {
+  position: absolute;
+  bottom: -4px;
+  left: -2px;
+  width: 12px;
+  height: 6px;
+  background-color: #1e293b;
+  border-radius: 4px 4px 2px 2px;
 }
 
 /* Animations */
@@ -110,7 +167,7 @@
 
 @keyframes avatar-idle-breath {
   0%, 100% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(-2px) scaleY(1.02); }
+  50% { transform: translateY(-3px) scaleY(1.03); }
 }
 
 @keyframes avatar-working-lean {
@@ -119,8 +176,8 @@
 }
 
 @keyframes avatar-typing {
-  from { transform: rotate(-20deg); }
-  to { transform: rotate(20deg); }
+  from { transform: rotate(-25deg); }
+  to { transform: rotate(25deg); }
 }
 
 @keyframes avatar-thinking-head {
@@ -130,7 +187,7 @@
 
 @keyframes avatar-scratch {
   0%, 100% { transform: rotate(0); }
-  50% { transform: rotate(140deg); }
+  50% { transform: rotate(145deg); }
 }
 
 /* Walking Animation */
@@ -148,13 +205,13 @@
 }
 
 @keyframes avatar-leg-swing {
-  from { transform: rotate(-20deg); }
-  to { transform: rotate(20deg); }
+  from { transform: rotate(-25deg); }
+  to { transform: rotate(25deg); }
 }
 
 @keyframes avatar-arm-swing {
-  from { transform: rotate(-30deg); }
-  to { transform: rotate(30deg); }
+  from { transform: rotate(-35deg); }
+  to { transform: rotate(35deg); }
 }
 
 /* Celebration Animation */
@@ -167,10 +224,10 @@
 
 @keyframes avatar-jump {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-20px); }
 }
 
 @keyframes avatar-wave {
-  from { transform: rotate(120deg); }
-  to { transform: rotate(170deg); }
+  from { transform: rotate(110deg); }
+  to { transform: rotate(160deg); }
 }
