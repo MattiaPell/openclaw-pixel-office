@@ -7,10 +7,57 @@
 body {
   margin: 0;
   font-family: 'Press Start 2P', cursive;
-  background-color: #1a1a2e;
-  color: #f0f0f0;
   font-size: 10px;
   overflow-x: hidden;
+}
+
+/* Theme Variables */
+:root, [data-theme="dark"] {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #1a1a1a;
+  --bg-card: #252540;
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaa;
+  --accent-primary: #ffd700;
+  --accent-secondary: #00ff00;
+  --accent-tertiary: #00aaff;
+  --border-color: #444;
+  --error-color: #ff5555;
+  --success-color: #00aa00;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #e0e0e0;
+  --bg-card: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --accent-primary: #ff8c00;
+  --accent-secondary: #008000;
+  --accent-tertiary: #0066cc;
+  --border-color: #ccc;
+  --error-color: #cc0000;
+  --success-color: #008000;
+}
+
+[data-theme="retro"] {
+  --bg-primary: #2d1b4e;
+  --bg-secondary: #1a0f2e;
+  --bg-card: #3d2b5e;
+  --text-primary: #00ff88;
+  --text-secondary: #88ffcc;
+  --accent-primary: #ff00ff;
+  --accent-secondary: #ffff00;
+  --accent-tertiary: #00ffff;
+  --border-color: #6644aa;
+  --error-color: #ff4466;
+  --success-color: #44ff88;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .app {
@@ -28,13 +75,13 @@ body {
 
 .loading-text {
   font-size: 16px;
-  color: #ffd700;
+  color: var(--accent-primary);
   animation: blink 1s infinite;
 }
 
 .loading-dots span {
   font-size: 24px;
-  color: #00ff00;
+  color: var(--accent-secondary);
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
@@ -56,13 +103,13 @@ body {
   align-items: center;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #ffd700;
+  border-bottom: 2px solid var(--accent-primary);
 }
 
 .header h1 {
   font-size: 14px;
   margin: 0;
-  color: #ffd700;
+  color: var(--accent-primary);
   text-shadow: 2px 2px #000;
 }
 
@@ -70,6 +117,23 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.connection-badge {
+  font-size: 7px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background-color: var(--bg-card);
+}
+
+.connection-badge.websocket {
+  color: var(--accent-secondary);
+  border: 1px solid var(--accent-secondary);
+}
+
+.connection-badge.polling {
+  color: var(--accent-tertiary);
+  border: 1px solid var(--accent-tertiary);
 }
 
 .status-indicator {
@@ -80,32 +144,61 @@ body {
 
 .status-indicator.online {
   background-color: rgba(0, 255, 0, 0.2);
-  color: #00ff00;
+  color: var(--accent-secondary);
 }
 
 .status-indicator.offline {
   background-color: rgba(255, 85, 85, 0.2);
-  color: #ff5555;
+  color: var(--error-color);
 }
 
 .retry-btn {
   font-family: 'Press Start 2P', cursive;
   font-size: 7px;
   padding: 5px 10px;
-  background-color: #ffaa00;
+  background-color: var(--accent-primary);
   color: #000;
   border: none;
   cursor: pointer;
 }
 
 .retry-btn:hover {
-  background-color: #ffcc33;
+  filter: brightness(1.2);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.icon-btn:hover {
+  transform: scale(1.2);
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--error-color);
+  color: #fff;
+  font-size: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .error-banner {
   background-color: rgba(255, 85, 85, 0.3);
-  border: 2px solid #ff5555;
-  color: #ff5555;
+  border: 2px solid var(--error-color);
+  color: var(--error-color);
   padding: 10px;
   margin-bottom: 15px;
   text-align: center;
@@ -134,21 +227,21 @@ body {
   font-family: 'Press Start 2P', cursive;
   font-size: 8px;
   padding: 10px;
-  background-color: #00aa00;
+  background-color: var(--success-color);
   color: #fff;
-  border: 2px solid #00ff00;
+  border: 2px solid var(--accent-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .create-task-btn:hover {
-  background-color: #00cc00;
+  filter: brightness(1.2);
   transform: scale(1.02);
 }
 
 .task-hint {
   font-size: 7px;
-  color: #666;
+  color: var(--text-secondary);
   text-align: center;
   margin: 5px 0 0 0;
 }
@@ -160,16 +253,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffd700;
+  background: var(--accent-primary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffdd33;
+  filter: brightness(1.2);
 }
 
 /* Responsive */
