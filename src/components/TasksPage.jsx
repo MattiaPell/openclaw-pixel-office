@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
+import CreateTaskModal from './CreateTaskModal'
 import '../styles/TasksPage.css'
 
 const TasksPage = ({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) => {
+  const [showCreateModal, setShowCreateModal] = useState(false)
+
   const columns = [
     { id: 'pending', label: 'To Do', icon: '📝' },
     { id: 'in_progress', label: 'In Corso', icon: '⚡' },
@@ -10,17 +13,24 @@ const TasksPage = ({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) 
 
   const getTasksByStatus = (status) => tasks.filter(t => t.status === status)
 
-  const handleCreateTask = () => {
-    const name = prompt('Nome del task:')
-    if (name) onCreateTask(name)
+  const handleCreateTask = (name) => {
+    onCreateTask(name)
+    setShowCreateModal(false)
   }
 
   return (
     <div className="tasks-page">
       <div className="page-header">
         <h2 className="pixel-font">TASK</h2>
-        <button className="btn-primary" onClick={handleCreateTask}>+ NUOVO TASK</button>
+        <button className="btn-primary" onClick={() => setShowCreateModal(true)}>+ NUOVO TASK</button>
       </div>
+
+      {showCreateModal && (
+        <CreateTaskModal
+          onSubmit={handleCreateTask}
+          onClose={() => setShowCreateModal(false)}
+        />
+      )}
 
       <div className="kanban-board">
         {columns.map(column => (
