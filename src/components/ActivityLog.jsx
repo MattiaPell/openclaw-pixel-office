@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import '../styles/ActivityLog.css'
 
-export default function ActivityLog({ log }) {
+const ActivityLog = memo(function ActivityLog({ log }) {
   const [expanded, setExpanded] = useState(true)
 
   const formatTime = (isoString) => {
@@ -45,4 +45,6 @@ export default function ActivityLog({ log }) {
       )}
     </div>
   )
-}
+})
+
+export default ActivityLog

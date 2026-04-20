@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import '../styles/OfficeScene.css'
 
-export default function OfficeScene({ agents, onAgentClick }) {
+const OfficeScene = memo(function OfficeScene({ agents, onAgentClick }) {
   return (
     <div className="office-scene">
       {/* Office background elements */}
@@ -48,4 +49,6 @@ export default function OfficeScene({ agents, onAgentClick }) {
       </div>
     </div>
   )
-}
+})
+
+export default OfficeScene
