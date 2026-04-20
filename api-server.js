@@ -1,0 +1,163 @@
+/**
+ * OpenClaw Pixel Office - API Server
+ * Reads OpenClaw state files and exposes as HTTP API.
+ */
+
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+const PORT = 3004;
+const SESSIONS_FILE = path.join(process.env.HOME || '/home/ubuntu', '.openclaw/agents/main/sessions/sessions.json');
+
+function readJson(filePath, fallback = null) {
+  try {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(`Error reading ${filePath}:`, err.message);
+    return fallback;
+  }
+}
+
+function getAgents() {
+  const sessions = readJson(SESSIONS_FILE, {});
+  const agents = [];
+  
+  // Map sessions to agents
+  for (const [key, session] of Object.entries(sessions)) {
+    const parts = key.split(':');
+    const agentId = parts[1] || 'main';
+    const channel = parts[2] || 'local';
+    
+    // Determine agent type from key
+    let type = 'local';
+    let name = 'Claw';
+    
+    if (channel === 'telegram') {
+      type = 'telegram';
+      name = 'Claw-Telegram';
+    } else if (channel === 'direct') {
+      type = 'direct';
+      name = 'Claw-Direct';
+    } else if (key.includes('dreaming')) {
+      type = 'dreaming';
+      name = `Dream-${parts[4]?.slice(-4) || 'light'}`;
+    }
+    
+    // Calculate status based on session activity
+    const lastUpdate = session.updatedAt || 0;
+    const now = Date.now();
+    const minutesSinceUpdate = (now - lastUpdate) / 1000 / 60;
+    
+    let status = 'idle';
+    if (minutesSinceUpdate < 5) {
+      status = 'working';
+    } else if (minutesSinceUpdate < 60) {
+      status = 'idle';
+    } else {
+      status = 'offline';
+    }
+    
+    agents.push({
+      id: session.sessionId || key,
+      name,
+      status,
+      type,
+      channel,
+      sessionKey: key,
+      lastUpdate: new Date(lastUpdate).toISOString(),
+      task: session.currentTask || null
+    });
+  }
+  
+  return agents;
+}
+
+function handleRequest(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+  
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  
+  // Health check
+  if (url.pathname === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+    return;
+  }
+  
+  // Agents list endpoint
+  if (url.pathname === '/api/agents') {
+    const agents = getAgents();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(agents));
+    return;
+  }
+  
+  // Single agent details
+  if (url.pathname.startsWith('/api/agents/')) {
+    const agentId = url.pathname.replace('/api/agents/', '');
+    const agents = getAgents();
+    const agent = agents.find(a => a.id === agentId || a.sessionKey === agentId);
+    
+    if (agent) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(agent));
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Agent not found' }));
+    }
+    return;
+  }
+  
+  // Sessions list
+  if (url.pathname === '/api/sessions') {
+    const sessions = readJson(SESSIONS_FILE, {});
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(Object.entries(sessions).map(([key, s]) => ({
+      key,
+      sessionId: s.sessionId,
+      chatType: s.chatType,
+      updatedAt: s.updatedAt
+    }))));
+    return;
+  }
+  
+  // Gateway health (from OpenClaw config)
+  if (url.pathname === '/api/health') {
+    const health = {
+      ok: true,
+      status: 'live',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString()
+    };
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(health));
+    return;
+  }
+  
+  // Not found
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ error: 'Not found' }));
+}
+
+const server = http.createServer(handleRequest);
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`OpenClaw API Server running on port ${PORT}`);
+  console.log(`Reading sessions from: ${SESSIONS_FILE}`);
+});
+
+server.on('error', (err) => {
+  console.error('Server error:', err.message);
+  process.exit(1);
+});
