@@ -1,46 +1,67 @@
 .task-queue {
-  background-color: #1a1a1a;
-  border: 2px solid #00ff00;
-  padding: 10px;
-  width: 100%;
-  color: #fff;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  padding: 16px;
+  border-radius: 12px;
+  color: var(--text-primary);
 }
 
 .task-queue h2 {
+  font-size: 12px;
+  font-weight: 700;
   margin-top: 0;
-  font-size: 10px;
-  color: #00ff00;
-  border-bottom: 1px solid #00ff00;
-  padding-bottom: 5px;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 8px;
+}
+
+.task-queue h2::before {
+  content: '📋';
+  font-size: 14px;
 }
 
 .task-queue ul {
   list-style: none;
   padding: 0;
-  margin: 10px 0;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .task-item {
-  padding: 8px;
-  border: 1px solid #333;
-  margin-bottom: 5px;
-  font-size: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 13px;
+  font-weight: 500;
   cursor: grab;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #252540;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-item:hover {
-  background-color: #003300;
-  border-color: #00ff00;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow);
 }
 
 .task-item.dragging {
-  opacity: 0.5;
-  transform: scale(0.95);
+  opacity: 0.4;
+  transform: scale(0.98);
+  border-style: dashed;
 }
 
 .task-name {
@@ -51,27 +72,27 @@
 }
 
 .task-delete {
-  background: none;
-  border: none;
-  color: #ff5555;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error-color);
+  border-radius: 4px;
   cursor: pointer;
   font-size: 10px;
-  padding: 2px 5px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.task-item:hover .task-delete {
-  opacity: 1;
+  padding: 4px 8px;
+  margin-left: 8px;
+  transition: all 0.2s;
 }
 
 .task-delete:hover {
-  color: #ff7777;
+  background: var(--error-color);
+  color: #fff;
 }
 
 .task-empty {
-  color: #666;
+  color: var(--text-secondary);
   text-align: center;
-  padding: 15px;
-  font-size: 8px;
+  padding: 24px;
+  font-size: 13px;
+  border: 1px dashed var(--glass-border);
+  border-radius: 8px;
 }

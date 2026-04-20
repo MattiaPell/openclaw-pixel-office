@@ -1,76 +1,89 @@
 .activity-log {
-  background-color: #1a1a1a;
-  border: 2px solid #00aaff;
-  font-size: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 16px;
 }
 
 .log-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
+  padding: 12px 16px;
   cursor: pointer;
-  color: #00aaff;
-  font-weight: bold;
-  border-bottom: 1px solid #333;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--glass-border);
+  transition: background 0.2s;
 }
 
 .log-header:hover {
-  background-color: #222;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .toggle {
-  font-size: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 .log-entries {
-  max-height: 150px;
+  max-height: 200px;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #00aaff #1a1a1a;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .log-empty {
-  padding: 10px;
-  color: #666;
+  padding: 24px;
+  color: var(--text-secondary);
   text-align: center;
+  font-size: 13px;
 }
 
 .log-entry {
   display: flex;
-  gap: 5px;
-  padding: 5px 8px;
-  border-bottom: 1px solid #2a2a2a;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--glass-border);
   align-items: center;
+  font-size: 12px;
+  transition: background 0.1s;
 }
 
 .log-entry:hover {
-  background-color: #222;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .log-entry.error {
-  color: #ff5555;
-  background-color: rgba(255, 85, 85, 0.1);
+  color: var(--error-color);
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .log-time {
-  color: #666;
-  font-size: 7px;
-  min-width: 40px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  min-width: 45px;
+  font-family: monospace;
 }
 
 .log-icon {
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .log-agent {
-  color: #ffd700;
-  font-weight: bold;
-  min-width: 60px;
+  color: var(--accent-primary);
+  font-weight: 600;
+  min-width: 70px;
 }
 
 .log-details {
-  color: #ccc;
+  color: var(--text-primary);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -83,10 +96,14 @@
 }
 
 .log-entries::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: transparent;
 }
 
 .log-entries::-webkit-scrollbar-thumb {
-  background: #00aaff;
-  border-radius: 3px;
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+.log-entries::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
