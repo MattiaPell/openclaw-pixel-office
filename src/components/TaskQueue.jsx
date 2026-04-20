@@ -10,7 +10,8 @@ export default function TaskQueue({ tasks = [], agents = [], onAssignTask, onDel
     if (taskRefs.current && agents.length > 0) {
       const taskElements = Object.values(taskRefs.current).filter(Boolean)
       const agentElements = document.querySelectorAll('.agent-item')
-      setupDragDrop(taskElements, agentElements, onAssignTask)
+      const cleanup = setupDragDrop(taskElements, agentElements, onAssignTask)
+      return cleanup
     }
   }, [tasks, agents, onAssignTask])
 
