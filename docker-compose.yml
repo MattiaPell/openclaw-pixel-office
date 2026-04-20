@@ -4,11 +4,13 @@ services:
     ports:
       - "3003:3000"
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - NODE_ENV=production
-      - OPENCLAW_GATEWAY_URL=http://localhost:8080
+      - OPENCLAW_GATEWAY_URL=http://host.docker.internal:18789
     volumes:
-      - ./public/sprites:/app/public/sprites
+      - ./public/sprites:/app/dist/sprites
     networks:
       - openclaw-net
 

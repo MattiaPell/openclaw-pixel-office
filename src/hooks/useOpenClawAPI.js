@@ -5,24 +5,16 @@ const TASKS_KEY = 'openclaw-office-tasks'
 const LOG_KEY = 'openclaw-office-log'
 const ACHIEVEMENTS_KEY = 'openclaw-office-achievements'
 
-// WebSocket configuration
-const WS_RECONNECT_INTERVAL = 5000
-const WS_PING_INTERVAL = 30000
-
 export function useOpenClawAPI() {
   const [agents, setAgents] = useState([])
-  const [lastAgents, setLastAgents] = useState([])
   const [tasks, setTasks] = useState([])
   const [activityLog, setActivityLog] = useState([])
   const [achievements, setAchievements] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isOnline, setIsOnline] = useState(true)
-  const [connectionMode, setConnectionMode] = useState('polling') // 'websocket' | 'polling'
   const logIdRef = useRef(0)
-  const wsRef = useRef(null)
-  const reconnectTimeoutRef = useRef(null)
-  const pingIntervalRef = useRef(null)
+  const startTime = useRef(Date.now())
 
   // Achievement definitions
   const ACHIEVEMENT_DEFS = [
@@ -30,9 +22,11 @@ export function useOpenClawAPI() {
     { id: 'speedster', name: 'Speedster', desc: 'Completa 3 task in meno di 1 ora', icon: '⚡', check: (a) => a.completedTasks >= 3 },
     { id: 'marathon', name: 'Maratoneta', desc: 'Completa 10 task', icon: '🏃', check: (a) => a.completedTasks >= 10 },
     { id: 'centurion', name: 'Centurione', desc: 'Completa 100 task', icon: '💯', check: (a) => a.completedTasks >= 100 },
-    { id: 'always_online', name: 'Sempre Online', desc: 'Usa la dashboard per 1 ora', icon: '🌐', check: () => Date.now() - startTime > 3600000 },
+    { id: 'always_online', name: 'Sempre Online', desc: 'Usa la dashboard per 1 ora', icon: '🌐', check: () => Date.now() - startTime.current > 3600000 },
+    { id: 'task_master', name: 'Task Master', desc: 'Crea 20 task', icon: '📋', check: (_, totalTasks) => totalTasks >= 20 },
+    { id: 'early_bird', name: 'Mattutino', desc: 'Usa la dashboard alle 6 del mattino', icon: '🌅', check: () => new Date().getHours() === 6 },
+    { id: 'night_owl', name: 'Notturno', desc: 'Usa la dashboard dopo mezzanotte', icon: '🦉', check: () => new Date().getHours() === 0 || new Date().getHours() === 1 },
   ]
-  const startTime = Date.now()
 
   // Load saved state from localStorage on init
   useEffect(() => {
@@ -41,14 +35,17 @@ export function useOpenClawAPI() {
     const savedLog = localStorage.getItem(LOG_KEY)
     const savedAchievements = localStorage.getItem(ACHIEVEMENTS_KEY)
 
+    // Load agents from config or saved state
+    const configAgents = import.meta.env.VITE_AGENTS
     if (savedAgents) {
       try {
-        const parsed = JSON.parse(savedAgents)
-        setLastAgents(parsed)
-        setAgents(parsed)
+        setAgents(JSON.parse(savedAgents))
       } catch (e) {
         console.warn('Failed to parse saved agents:', e)
+        setAgents(configAgents ? JSON.parse(configAgents) : [])
       }
+    } else {
+      setAgents(configAgents ? JSON.parse(configAgents) : [])
     }
 
     if (savedTasks) {
@@ -76,20 +73,33 @@ export function useOpenClawAPI() {
         console.warn('Failed to parse saved achievements:', e)
       }
     }
+
+    setLoading(false)
+    setIsOnline(true)
   }, [])
 
   // Check for new achievements
-  const checkAchievements = useCallback((agentStats) => {
+  const checkAchievements = useCallback((agentId) => {
     const earned = []
+    const agent = agents.find(a => a.id === agentId)
+    const completedCount = agent ? (agent.completedTasks || 0) : 0
+    const totalTasksCreated = tasks.length
+
     ACHIEVEMENT_DEFS.forEach(def => {
       const alreadyEarned = achievements.find(a => a.id === def.id)
-      if (!alreadyEarned && def.check(agentStats)) {
-        earned.push({
-          ...def,
-          earnedAt: new Date().toISOString()
-        })
+      if (!alreadyEarned) {
+        const check = def.id === 'task_master' 
+          ? def.check(null, totalTasksCreated)
+          : def.check({ completedTasks: completedCount }, totalTasksCreated)
+        if (check) {
+          earned.push({
+            ...def,
+            earnedAt: new Date().toISOString()
+          })
+        }
       }
     })
+
     if (earned.length > 0) {
       setAchievements(prev => {
         const updated = [...prev, ...earned]
@@ -98,7 +108,7 @@ export function useOpenClawAPI() {
       })
       earned.forEach(a => addLogEntry('Sistema', 'achievement', `🏆 Ottenuto: ${a.name}`))
     }
-  }, [achievements])
+  }, [agents, achievements, tasks])
 
   // Add activity log entry
   const addLogEntry = useCallback((agentName, action, details) => {
@@ -114,142 +124,43 @@ export function useOpenClawAPI() {
       localStorage.setItem(LOG_KEY, JSON.stringify(updated))
       return updated
     })
+    return entry
   }, [])
 
-  // WebSocket connection
-  const connectWebSocket = useCallback(() => {
-    try {
-      const gatewayUrl = import.meta.env.VITE_OPENCLAW_GATEWAY_URL || 'http://localhost:18789'
-      const wsUrl = gatewayUrl.replace('http', 'ws') + '/ws'
-      
-      wsRef.current = new WebSocket(wsUrl)
+  const assignTask = useCallback((agentId, taskName) => {
+    const agent = agents.find(a => a.id === agentId)
+    if (!agent) return
 
-      wsRef.current.onopen = () => {
-        console.log('WebSocket connected')
-        setConnectionMode('websocket')
-        setIsOnline(true)
-        clearTimeout(reconnectTimeoutRef.current)
-        
-        // Start ping interval
-        pingIntervalRef.current = setInterval(() => {
-          if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: 'ping' }))
-          }
-        }, WS_PING_INTERVAL)
-      }
-
-      wsRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-          if (data.type === 'agents_update' && data.agents) {
-            setAgents(data.agents)
-            setLastAgents(data.agents)
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.agents))
-          }
-        } catch (e) {
-          console.error('Failed to parse WebSocket message:', e)
+    setAgents(prev => {
+      const updated = prev.map(a => {
+        if (a.id === agentId) {
+          return { ...a, status: 'working', task: taskName }
         }
-      }
-
-      wsRef.current.onclose = () => {
-        console.log('WebSocket disconnected')
-        setConnectionMode('polling')
-        clearInterval(pingIntervalRef.current)
-        // Attempt reconnect
-        reconnectTimeoutRef.current = setTimeout(connectWebSocket, WS_RECONNECT_INTERVAL)
-      }
-
-      wsRef.current.onerror = (error) => {
-        console.error('WebSocket error:', error)
-      }
-    } catch (err) {
-      console.error('Failed to connect WebSocket:', err)
-      setConnectionMode('polling')
-    }
-  }, [])
-
-  // Fallback polling
-  const fetchAgents = useCallback(async () => {
-    try {
-      const gatewayUrl = import.meta.env.VITE_OPENCLAW_GATEWAY_URL || 'http://localhost:18789'
-      const response = await fetch(`${gatewayUrl}/api/agents`)
-      if (!response.ok) throw new Error('Failed to fetch agents')
-      const data = await response.json()
-      const newAgents = data.agents || []
-      
-      // Detect changes for activity log
-      newAgents.forEach(newAgent => {
-        const oldAgent = agents.find(a => a.id === newAgent.id)
-        if (oldAgent) {
-          if (oldAgent.status !== newAgent.status && newAgent.status === 'working') {
-            addLogEntry(newAgent.name, 'started', newAgent.task || 'Nuovo task')
-          } else if (oldAgent.status !== newAgent.status && newAgent.status === 'idle' && oldAgent.status === 'working') {
-            addLogEntry(newAgent.name, 'completed', oldAgent.task || 'Task completato')
-            // Check achievements after completion
-            checkAchievements({ completedTasks: 1 }) // Simplified check
-          }
-        }
+        return a
       })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
 
-      setAgents(newAgents)
-      setLastAgents(newAgents)
-      setIsOnline(true)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newAgents))
-      setError(null)
-    } catch (err) {
-      console.error('Error fetching agents:', err)
-      setError(err.message)
-      setIsOnline(false)
-      if (lastAgents.length > 0 && agents.length === 0) {
-        setAgents(lastAgents)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }, [agents, lastAgents, addLogEntry, checkAchievements])
-
-  useEffect(() => {
-    // Try WebSocket first, fallback to polling
-    connectWebSocket()
+    addLogEntry(agent.name, 'assigned', taskName)
     
-    const pollingInterval = setInterval(() => {
-      if (connectionMode === 'polling') {
-        fetchAgents()
-      }
-    }, 5000)
-
-    return () => {
-      clearInterval(pollingInterval)
-      clearTimeout(reconnectTimeoutRef.current)
-      clearInterval(pingIntervalRef.current)
-      if (wsRef.current) {
-        wsRef.current.close()
-      }
-    }
-  }, [connectWebSocket, fetchAgents, connectionMode])
-
-  const assignTask = useCallback(async (agentId, taskName) => {
-    try {
-      const gatewayUrl = import.meta.env.VITE_OPENCLAW_GATEWAY_URL || 'http://localhost:18789'
-      const response = await fetch(`${gatewayUrl}/api/agents/${agentId}/task`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: taskName })
+    // Simulate task completion after random time (for demo)
+    setTimeout(() => {
+      setAgents(prev => {
+        const updated = prev.map(a => {
+          if (a.id === agentId && a.status === 'working') {
+            const newCompleted = (a.completedTasks || 0) + 1
+            addLogEntry(a.name, 'completed', a.task || 'Task')
+            checkAchievements(agentId)
+            return { ...a, status: 'idle', task: null, completedTasks: newCompleted }
+          }
+          return a
+        })
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+        return updated
       })
-      if (!response.ok) throw new Error('Failed to assign task')
-      
-      const agent = agents.find(a => a.id === agentId)
-      if (agent) {
-        addLogEntry(agent.name, 'assigned', taskName)
-      }
-      
-      await fetchAgents()
-    } catch (err) {
-      console.error('Error assigning task:', err)
-      addLogEntry('Sistema', 'error', `Errore assegnazione: ${err.message}`)
-      throw err
-    }
-  }, [agents, fetchAgents, addLogEntry])
+    }, Math.random() * 30000 + 10000) // 10-40 seconds
+  }, [agents, addLogEntry, checkAchievements])
 
   // Create new task
   const createTask = useCallback((name) => {
@@ -262,11 +173,12 @@ export function useOpenClawAPI() {
     setTasks(prev => {
       const updated = [...prev, newTask]
       localStorage.setItem(TASKS_KEY, JSON.stringify(updated))
+      checkAchievements(null)
       return updated
     })
     addLogEntry('Utente', 'created_task', name)
     return newTask
-  }, [addLogEntry])
+  }, [addLogEntry, checkAchievements])
 
   // Update task
   const updateTask = useCallback((taskId, updates) => {
@@ -300,21 +212,16 @@ export function useOpenClawAPI() {
     return {
       ...agent,
       history: agentLogs.slice(0, 10),
-      completedTasks: agentLogs.filter(l => l.action === 'completed').length,
+      completedTasks: agent.completedTasks || 0,
       totalTime: 'N/A'
     }
   }, [agents, activityLog])
 
   // Retry connection
   const retry = useCallback(() => {
-    setLoading(true)
+    setIsOnline(true)
     setError(null)
-    if (wsRef.current) {
-      wsRef.current.close()
-    }
-    connectWebSocket()
-    fetchAgents()
-  }, [connectWebSocket, fetchAgents])
+  }, [])
 
   return {
     agents,
@@ -324,7 +231,7 @@ export function useOpenClawAPI() {
     loading,
     error,
     isOnline,
-    connectionMode,
+    connectionMode: 'local',
     assignTask,
     createTask,
     updateTask,

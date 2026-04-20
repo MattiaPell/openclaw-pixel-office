@@ -121,12 +121,10 @@ function App() {
       <header className="header">
         <h1>🦾 OPENCLAW PIXEL OFFICE</h1>
         <div className="status-bar">
-          <span className={`connection-badge ${connectionMode}`}>
-            {connectionMode === 'websocket' ? '🔌 WS' : '⏱️ POLL'}
-          </span>
           <span className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
             {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
           </span>
+          <span className="mode-badge">📁 LOCALE</span>
           {!isOnline && (
             <button className="retry-btn" onClick={retry}>
               RIPROVA
