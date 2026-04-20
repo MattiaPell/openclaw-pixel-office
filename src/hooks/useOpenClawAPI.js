@@ -17,39 +17,47 @@ export function useOpenClawAPI() {
   const logIdRef = useRef(0)
   const startTime = useRef(Date.now())
 
+  // Use API server if available, fallback to direct gateway or env
+  const API_URL = import.meta.env.VITE_OPENCLAW_API_URL
   const GATEWAY_URL = import.meta.env.VITE_OPENCLAW_GATEWAY_URL
 
   const fetchExternalAgents = useCallback(async () => {
-    if (!GATEWAY_URL) return null
-    try {
-      // Use a standard controller for better compatibility if AbortSignal.timeout is missing
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+    // Try API server first (preferred method)
+    if (API_URL) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(`${API_URL}/api/agents`, { signal: controller.signal })
+        clearTimeout(timeoutId);
 
-      const response = await fetch(`${GATEWAY_URL}/agents`, { signal: controller.signal })
-      clearTimeout(timeoutId);
-
-      if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`)
-      const data = await response.json()
-
-      if (!Array.isArray(data)) {
-        console.warn('Received non-array data from gateway:', data);
-        return null;
+        if (response.ok) {
+          const data = await response.json()
+          if (Array.isArray(data) && data.length > 0) {
+            return data.map(a => ({
+              id: a.id || a.sessionId || Math.random().toString(36).substr(2, 9),
+              name: a.name || a.sessionKey?.split(':').pop() || 'Agent',
+              status: a.status || 'idle',
+              task: a.task || a.currentTask || null,
+              completedTasks: a.completedTasks || 0,
+              type: a.type || 'local',
+              channel: a.channel || 'local'
+            }))
+          }
+        }
+      } catch (e) {
+        console.warn('API server fetch failed, trying gateway:', e)
       }
-
-      return data.map(a => ({
-        id: a.id || a.name || Math.random().toString(36).substr(2, 9),
-        name: a.name || 'Agente Sconosciuto',
-        status: a.status || 'idle',
-        task: a.current_task || null,
-        completedTasks: a.completed_tasks || 0,
-        sprite: a.status === 'working' ? 'working' : 'idle'
-      }))
-    } catch (e) {
-      console.error('Failed to fetch external agents:', e)
-      return null
     }
-  }, [GATEWAY_URL])
+
+    // Fallback to gateway WebSocket (if WebSocket API is available)
+    if (GATEWAY_URL) {
+      // Note: Gateway uses WebSocket, not HTTP REST for agents
+      // This fallback is for backward compatibility only
+      console.warn('Direct gateway HTTP not available, using local fallback')
+    }
+
+    return null
+  }, [API_URL, GATEWAY_URL])
 
   // Achievement definitions
   const ACHIEVEMENT_DEFS = [
