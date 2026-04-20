@@ -4,26 +4,15 @@ services:
   dashboard:
     build: .
     ports:
-      - "3000:3000"
+      - "3003:3000"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - OPENCLAW_GATEWAY_URL=http://gateway:8080
+      - OPENCLAW_GATEWAY_URL=http://localhost:8080
     volumes:
       - ./public/sprites:/app/public/sprites
     networks:
       - openclaw-net
-    depends_on:
-      - gateway
-
-  gateway:
-    image: openclaw/gateway:latest
-    environment:
-      - OPENCLAW_API_KEY=your-api-key-here
-    networks:
-      - openclaw-net
-    ports:
-      - "8080:8080"
 
 networks:
   openclaw-net:

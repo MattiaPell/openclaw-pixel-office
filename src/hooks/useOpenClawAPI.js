@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 
 export function useOpenClawAPI() {
-  const [agents, setAgents] = useState([])
+  const [agents, setAgents] = useState([
+    { id: 1, name: 'Claw-1', status: 'idle', task: null, sprite: 'claw-idle' },
+    { id: 2, name: 'Claw-2', status: 'working', task: 'Analisi codice', sprite: 'claw-working' },
+    { id: 3, name: 'Claw-3', status: 'walking', task: 'In transito', sprite: 'claw-walking' }
+  ])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
