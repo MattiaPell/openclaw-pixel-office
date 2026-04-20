@@ -6,13 +6,22 @@ Una dashboard in stile pixel art per monitorare e gestire gli agenti OpenClaw, c
 
 ## ✨ Funzionalità
 
+### Core
 - 🎨 **Ufficio virtuale in pixel art** con animazioni degli agenti
-- 📊 **Monitoraggio agenti** in tempo reale
+- 📊 **Monitoraggio agenti** in tempo reale (WebSocket + Polling)
 - 📋 **Gestione task** con drag-and-drop
 - 📜 **Log attività** per tracciare tutte le azioni
 - 🔄 **Modalità offline** con fallback locale
 - 📱 **Responsive design**
-- 🎮 **Sprite animati** per ogni stato dell'agente
+
+### Gamification
+- 🏆 **Sistema achievements** con 8 badge da sbloccare
+- 🔊 **Suoni 8-bit** (completamento, assegnazione, achievement)
+- ⚡ **Indicatori performance** (WS vs Polling)
+
+### Personalizzazione
+- 🎨 **3 Temi**: Scuro, Chiaro, Retro
+- ⚙️ **Pannello impostazioni** per configurare tutto
 
 ## 🚀 Quick Start
 
@@ -74,11 +83,27 @@ Clicca su un agente per vedere:
 - Statistiche (task completati, task attuale)
 - Cronologia recente
 
+### Achievements
+
+Clicca sull'icona 🏆 per vedere i tuoi achievement:
+- **Primo Passo**: Completa il primo task
+- **Speedster**: Completa 3 task in meno di 1 ora
+- **Maratoneta**: Completa 10 task
+- **Centurione**: Completa 100 task
+- E altri ancora...
+
+### Impostazioni
+
+Clicca sull'icona ⚙️ per:
+- Cambiare il tema (Scuro/Chiaro/Retro)
+- Attivare/disattivare i suoni 8-bit
+
 ## 🛠️ Stack Tecnologico
 
 - **React 18** - UI framework
 - **Vite** - Build tool
 - **CSS Pixel Art** - Stile retro
+- **WebSocket** - Aggiornamenti real-time
 - **localStorage** - Persistenza locale
 - **Docker** - Containerizzazione
 
@@ -89,13 +114,15 @@ openclaw-pixel-office/
 ├── src/
 │   ├── components/       # Componenti React
 │   │   ├── ActivityLog.jsx
+│   │   ├── AchievementsPanel.jsx
 │   │   ├── AgentList.jsx
 │   │   ├── AgentModal.jsx
 │   │   ├── CreateTaskModal.jsx
 │   │   ├── OfficeScene.jsx
+│   │   ├── SettingsModal.jsx
 │   │   └── TaskQueue.jsx
 │   ├── hooks/
-│   │   └── useOpenClawAPI.js  # Hook per API OpenClaw
+│   │   └── useOpenClawAPI.js  # Hook per API OpenClaw + WebSocket
 │   ├── styles/
 │   │   └── *.css
 │   ├── utils/
@@ -118,9 +145,12 @@ Gli sprite degli agenti si trovano in `public/sprites/`:
 - `claw-working.png` - Agente al lavoro
 - `claw-walking.png` - Agente in movimento
 
-### Colori
+### Temi
 
-I colori sono definiti nei file CSS nella cartella `src/styles/`.
+I temi sono definiti in `src/styles/global.css`:
+- **dark**: Tema scuro classico
+- **light**: Tema chiaro
+- **retro**: Tema colorato stile anni '80
 
 ## 📝 TODO
 
@@ -132,10 +162,12 @@ I colori sono definiti nei file CSS nella cartella `src/styles/`.
 - [x] Log attività
 - [x] Creazione/modifica task
 - [x] Dettagli agente
-- [ ] WebSocket per aggiornamenti real-time
-- [ ] Badge e achievement
-- [ ] Suoni 8-bit
-- [ ] Tema scuro/chiaro
+- [x] WebSocket per aggiornamenti real-time
+- [x] Badge e achievement
+- [x] Suoni 8-bit
+- [x] Tema scuro/chiaro
+- [ ] Notifiche browser
+- [ ] Esportazione log
 
 ## 🤝 Contributi
 
