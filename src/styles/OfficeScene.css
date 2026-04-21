@@ -9,6 +9,46 @@
   image-rendering: pixelated;
   flex-shrink: 0;
   box-shadow: var(--glass-shadow);
+  transition: filter 1s ease-in-out;
+}
+
+.office-scene.is-night {
+  filter: brightness(0.7) contrast(1.1);
+}
+
+/* PIXEL: Debug Menu Styles */
+.office-debug-menu {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  display: flex;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.debug-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.debug-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.debug-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: black;
 }
 
 /* Office Background */
@@ -90,6 +130,15 @@
     inset 0 0 30px rgba(0,0,0,0.6),
     0 8px 0 rgba(0,0,0,0.3);
   border-radius: 0;
+  transition: all 1s ease-in-out;
+}
+
+.office-scene.is-day .window {
+  background: linear-gradient(180deg, var(--window-day-start) 0%, var(--window-day-end) 100%);
+  box-shadow:
+    0 0 60px var(--window-glow-day),
+    inset 0 0 30px rgba(0,0,0,0.2),
+    0 8px 0 rgba(0,0,0,0.3);
 }
 
 /* PIXEL: Light ray from window */
@@ -100,10 +149,15 @@
   left: -20%;
   width: 140%;
   height: 400px;
-  background: linear-gradient(180deg, rgba(30, 64, 175, 0.15) 0%, transparent 100%);
+  background: linear-gradient(180deg, var(--ray-night) 0%, transparent 100%);
   clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
   pointer-events: none;
   z-index: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+.office-scene.is-day .window::after {
+  background: linear-gradient(180deg, var(--ray-day) 0%, transparent 100%);
 }
 
 /* City lights in window */
@@ -119,6 +173,11 @@
     radial-gradient(circle at 50% 30%, var(--window-lights) 2px, transparent 2px),
     radial-gradient(circle at 80% 60%, var(--window-lights) 2px, transparent 2px);
   background-size: 40px 20px;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.office-scene.is-night .window::before {
   opacity: 0.6;
 }
 
@@ -177,8 +236,22 @@
   height: 12px;
   background-color: var(--floor-edge);
   transform-origin: bottom center;
-  transform: translate(-50%, -100%) rotate(0deg);
-  animation: clock-hands 60s linear infinite;
+  /* PIXEL: Hourly hand rotation from JS */
+  transform: translate(-50%, -100%) rotate(var(--hour-rotation, 0deg));
+}
+
+/* PIXEL: Minute hand */
+.clock::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.5px;
+  height: 16px;
+  background-color: var(--floor-edge);
+  transform-origin: bottom center;
+  /* PIXEL: Minute hand rotation from JS */
+  transform: translate(-50%, -100%) rotate(var(--min-rotation, 0deg));
 }
 
 /* PIXEL: Palette and Theme Variables */
@@ -193,6 +266,11 @@
   --floor-base: #1e1b4b;
   --floor-edge: #0f172a;
   --window-bg: #1e40af;
+  --window-day-start: #38bdf8;
+  --window-day-end: #818cf8;
+  --window-glow-day: rgba(56, 189, 248, 0.3);
+  --ray-day: rgba(255, 255, 255, 0.2);
+  --ray-night: rgba(30, 64, 175, 0.15);
   --plant-main: #065f46;
   --plant-dark: #064e3b;
   --pot-main: #3f3f46;

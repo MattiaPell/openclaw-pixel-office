@@ -13,3 +13,10 @@ Before: Level 2 Environment - Flat shapes for desks/monitors, basic grid floor, 
 After: Level 5 Environment - Pixel-art shading on desks/monitors, parquet floor pattern with baseboard, grounding drop shadows for agents, and atmospheric light rays from the window. Fixed all raw hexes to variables and removed plant rounded corners in favor of a pixelated clip-path.
 Next candidate: Environment Level 7 (Ambient animation: flickering monitors, swaying plants).
 Known constraints: Clip-path used for light rays and plants requires modern browser support; grounding shadows use `filter: drop-shadow`.
+
+2024-04-21 - Dynamic Office Lighting & Time
+Area: environment
+Before: Level 5 Environment - Static shading and fixed atmospheric lighting. No sense of time passage.
+After: Level 8 Environment - Dynamic day/night cycle that tints the entire scene, real-time working wall clock, and city lights visible through the window at night. Added a debug menu to manually override lighting states for testing.
+Next candidate: Character Level 6 - Unique character designs based on agent role/emoji.
+Known constraints: Day/night transitions use CSS variables for smooth performance; local system time is used for the "Auto" clock setting.
