@@ -73,7 +73,14 @@ export const downloadCSV = (data: Array<Record<string, any>>, filename: string):
   for (const row of flattenedData) {
     const values = headers.map(header => {
       const val = row[header] ?? '';
-      const escaped = ('' + val).replace(/"/g, '""');
+      let stringVal = '' + val;
+
+      // Prevent CSV Injection: prepend ' if value starts with =, +, -, or @
+      if (/^[=+\-@]/.test(stringVal)) {
+        stringVal = "'" + stringVal;
+      }
+
+      const escaped = stringVal.replace(/"/g, '""');
       return `"${escaped}"`;
     });
     csvRows.push(values.join(','));
