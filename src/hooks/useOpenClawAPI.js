@@ -20,13 +20,17 @@ export function useOpenClawAPI() {
   // Use API server if available, fallback to direct gateway or env
   const API_URL = import.meta.env.VITE_OPENCLAW_API_URL
   const GATEWAY_URL = import.meta.env.VITE_OPENCLAW_GATEWAY_URL
+  const GATEWAY_TOKEN = import.meta.env.VITE_OPENCLAW_GATEWAY_TOKEN
 
   const fetchExternalAgents = useCallback(async () => {
+    // spec: gateway/protocol#client-constants (requestTimeoutMs = 30_000)
+    const RPC_TIMEOUT_MS = 30000;
+
     // Try API server first (preferred method)
     if (API_URL) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
         const response = await fetch(`${API_URL}/api/agents`, { signal: controller.signal })
         clearTimeout(timeoutId);
 
@@ -49,15 +53,50 @@ export function useOpenClawAPI() {
       }
     }
 
-    // Fallback to gateway WebSocket (if WebSocket API is available)
+    // spec: gateway/openai-http-api#model-list-and-agent-routing
+    // Fallback to direct Gateway OpenAI HTTP API
     if (GATEWAY_URL) {
-      // Note: Gateway uses WebSocket, not HTTP REST for agents
-      // This fallback is for backward compatibility only
-      console.warn('Direct gateway HTTP not available, using local fallback')
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
+
+        const headers = { 'Accept': 'application/json' };
+        if (GATEWAY_TOKEN) {
+          headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`;
+        }
+
+        const response = await fetch(`${GATEWAY_URL}/v1/models`, {
+          headers,
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const body = await response.json()
+          // OpenAI /v1/models returns { data: [ { id: "openclaw/..." }, ... ] }
+          const models = body.data || [];
+          if (Array.isArray(models) && models.length > 0) {
+            return models.map(m => {
+              const agentId = m.id.startsWith('openclaw/') ? m.id.split('/')[1] : m.id;
+              return {
+                id: m.id,
+                name: agentId.charAt(0).toUpperCase() + agentId.slice(1),
+                status: 'idle', // HTTP models list doesn't report real-time status
+                task: null,
+                completedTasks: 0,
+                type: 'cloud',
+                channel: 'gateway'
+              };
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Direct gateway /v1/models fetch failed:', e)
+      }
     }
 
     return null
-  }, [API_URL, GATEWAY_URL])
+  }, [API_URL, GATEWAY_URL, GATEWAY_TOKEN])
 
   // Achievement definitions
   const ACHIEVEMENT_DEFS = [
