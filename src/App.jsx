@@ -19,6 +19,7 @@ function App() {
     loading,
     error,
     isOnline,
+    connectionMode,
     assignTask,
     createTask,
     deleteTask,
@@ -155,7 +156,9 @@ function App() {
             </span>
           </div>
           <div className="status-bar">
-            <span className="mode-badge">MODALITÀ LOCALE</span>
+            <span className="mode-badge">
+              {connectionMode === 'cloud' ? 'MODALITÀ CLOUD' : 'MODALITÀ LOCALE'}
+            </span>
             {!isOnline && (
               <button className="retry-btn" onClick={retry}>
                 RIPROVA
