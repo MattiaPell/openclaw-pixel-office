@@ -10,7 +10,7 @@ export default function SettingsModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content settings-modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
         
         <h2>⚙️ IMPOSTAZIONI</h2>
 
