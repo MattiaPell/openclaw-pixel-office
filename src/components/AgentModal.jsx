@@ -16,7 +16,7 @@ export default function AgentModal({ agent, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
         
         <div className="agent-header">
           <AgentAvatar status={agent.status} size="large" id={agent.id} />
@@ -33,17 +33,17 @@ export default function AgentModal({ agent, onClose }) {
 
         <div className="agent-stats">
           <div className="stat">
-            <span className="stat-label">TASK COMPLETATI</span>
+            <span className="stat-label">COMPLETED TASKS</span>
             <span className="stat-value">{agent.completedTasks}</span>
           </div>
           <div className="stat">
-            <span className="stat-label">TASK ATTUALE</span>
-            <span className="stat-value">{agent.task || 'Nessuno'}</span>
+            <span className="stat-label">CURRENT TASK</span>
+            <span className="stat-value">{agent.task || 'None'}</span>
           </div>
         </div>
 
         <div className="agent-history">
-          <h3>CRONOLOGIA</h3>
+          <h3>HISTORY</h3>
           <div className="history-list">
             {agent.history && agent.history.length > 0 ? (
               agent.history.map(entry => (
@@ -55,14 +55,14 @@ export default function AgentModal({ agent, onClose }) {
                   </span>
                   <span className="history-action">{entry.details}</span>
                   <span className="history-time">
-                    {new Date(entry.timestamp).toLocaleTimeString('it-IT', { 
+                    {new Date(entry.timestamp).toLocaleTimeString('en-US', {
                       hour: '2-digit', minute: '2-digit' 
                     })}
                   </span>
                 </div>
               ))
             ) : (
-              <div className="history-empty">Nessuna cronologia disponibile</div>
+              <div className="history-empty">No history available</div>
             )}
           </div>
         </div>

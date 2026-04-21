@@ -75,7 +75,7 @@ const AnalyticsPage = memo(({ agents, tasks, activityLog }) => {
       { key: 'pending', value: stats.pendingTasks }
     ].filter(d => d.value > 0)
 
-    if (data.length === 0) return <div className="empty-chart-message">Nessun dato disponibile</div>
+    if (data.length === 0) return <div className="empty-chart-message">No data available</div>
 
     let currentOffset = 0
     const total = stats.totalTasks
@@ -110,15 +110,15 @@ const AnalyticsPage = memo(({ agents, tasks, activityLog }) => {
         <div className="chart-legend">
           <div className="legend-item">
             <span className="legend-color" style={{ backgroundColor: colors.completed }}></span>
-            <span>Completati ({stats.completedTasks})</span>
+            <span>Completed ({stats.completedTasks})</span>
           </div>
           <div className="legend-item">
             <span className="legend-color" style={{ backgroundColor: colors.in_progress }}></span>
-            <span>In Corso ({stats.inProgressTasks})</span>
+            <span>In Progress ({stats.inProgressTasks})</span>
           </div>
           <div className="legend-item">
             <span className="legend-color" style={{ backgroundColor: colors.pending }}></span>
-            <span>In Attesa ({stats.pendingTasks})</span>
+            <span>Pending ({stats.pendingTasks})</span>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@ const AnalyticsPage = memo(({ agents, tasks, activityLog }) => {
 
       <div className="charts-container">
         <div className="chart-panel glass-panel">
-          <h3>📊 PERFORMANCE AGENTI (Top 5)</h3>
+          <h3>📊 AGENT PERFORMANCE (Top 5)</h3>
           <div className="bar-chart">
             {stats.agentActivity.length > 0 ? (
               stats.agentActivity.map((agent, i) => {
@@ -173,13 +173,13 @@ const AnalyticsPage = memo(({ agents, tasks, activityLog }) => {
                 )
               })
             ) : (
-              <div className="empty-chart-message">Nessun dato attività</div>
+              <div className="empty-chart-message">No activity data</div>
             )}
           </div>
         </div>
 
         <div className="chart-panel glass-panel">
-          <h3>🎯 STATO DEI TASK</h3>
+          <h3>🎯 TASK STATUS</h3>
           {renderDonutChart()}
         </div>
       </div>

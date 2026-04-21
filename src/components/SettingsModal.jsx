@@ -10,7 +10,7 @@ export default function SettingsModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content settings-modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
         
         <h2>⚙️ SETTINGS</h2>
 
@@ -59,11 +59,11 @@ export default function SettingsModal({
         <div className="settings-section">
           <h3>ℹ️ INFO</h3>
           <div className="info-item">
-            <span>Versione</span>
+            <span>Version</span>
             <span>1.0.0</span>
           </div>
           <div className="info-item">
-            <span>Connessione</span>
+            <span>Connection</span>
             <span>WebSocket / Polling</span>
           </div>
         </div>
