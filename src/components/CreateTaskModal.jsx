@@ -14,19 +14,19 @@ export default function CreateTaskModal({ onSubmit, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content task-modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
         
-        <h2>CREA NUOVO TASK</h2>
+        <h2>CREATE NEW TASK</h2>
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="taskName">Nome del task</label>
+            <label htmlFor="taskName">Task Name</label>
             <input
               id="taskName"
               type="text"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
-              placeholder="Es. Analisi codice Swift"
+              placeholder="e.g. Swift code analysis"
               autoFocus
               maxLength={100}
             />
@@ -34,10 +34,10 @@ export default function CreateTaskModal({ onSubmit, onClose }) {
           
           <div className="form-actions">
             <button type="button" className="btn-cancel" onClick={onClose}>
-              ANNULLA
+              CANCEL
             </button>
             <button type="submit" className="btn-submit" disabled={!taskName.trim()}>
-              CREA
+              CREATE
             </button>
           </div>
         </form>

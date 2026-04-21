@@ -32,8 +32,8 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
   return (
     <div className="agents-page">
       <div className="page-header">
-        <h2 className="pixel-font">AGENTI</h2>
-        <button className="btn-primary" onClick={handleOpenAdd}>+ AGGIUNGI AGENTE</button>
+        <h2 className="pixel-font">AGENTS</h2>
+        <button className="btn-primary" onClick={handleOpenAdd}>+ ADD AGENT</button>
       </div>
 
       <div className="agents-grid">
@@ -49,13 +49,13 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
             </div>
             <div className="agent-card-body">
               <h3>{agent.name}</h3>
-              <p className="agent-identity">{agent.identity || 'Nessuna identità'}</p>
+              <p className="agent-identity">{agent.identity || 'No identity'}</p>
               <div className="agent-info-row">
-                <span className="label">Modello:</span>
+                <span className="label">Model:</span>
                 <span className="value">{agent.model || 'N/A'}</span>
               </div>
               <div className="agent-info-row">
-                <span className="label">Task Completati:</span>
+                <span className="label">Completed Tasks:</span>
                 <span className="value">{agent.completedTasks || 0}</span>
               </div>
             </div>
@@ -63,16 +63,16 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
               <button
                 className="btn-icon"
                 onClick={() => handleOpenEdit(agent)}
-                title="Modifica"
-                aria-label="Modifica agente"
+                title="Edit"
+                aria-label="Edit agent"
               >
                 ✏️
               </button>
               <button
                 className="btn-icon delete"
                 onClick={() => onDeleteAgent(agent.id)}
-                title="Elimina"
-                aria-label="Elimina agente"
+                title="Delete"
+                aria-label="Delete agent"
               >
                 🗑️
               </button>
@@ -90,11 +90,11 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
             aria-modal="true"
             aria-labelledby="agent-modal-title"
           >
-            <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Chiudi">✕</button>
-            <h2 className="pixel-font" id="agent-modal-title">{editingAgent ? 'MODIFICA AGENTE' : 'AGGIUNGI AGENTE'}</h2>
+            <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Close">✕</button>
+            <h2 className="pixel-font" id="agent-modal-title">{editingAgent ? 'EDIT AGENT' : 'ADD AGENT'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label htmlFor="agent-name">Nome</label>
+                <label htmlFor="agent-name">Name</label>
                 <input
                   id="agent-name"
                   type="text"
@@ -106,7 +106,7 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="agent-identity">Identità</label>
+                <label htmlFor="agent-identity">Identity</label>
                 <input
                   id="agent-identity"
                   type="text"
@@ -116,7 +116,7 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="agent-model">Modello</label>
+                <label htmlFor="agent-model">Model</label>
                 <input
                   id="agent-model"
                   type="text"
@@ -126,8 +126,8 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
                 />
               </div>
               <div className="form-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Annulla</button>
-                <button type="submit" className="btn-submit">{editingAgent ? 'Salva' : 'Crea'}</button>
+                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn-submit">{editingAgent ? 'Save' : 'Create'}</button>
               </div>
             </form>
           </div>

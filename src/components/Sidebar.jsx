@@ -4,10 +4,10 @@ import '../styles/Sidebar.css'
 // Move menuItems outside component to ensure stable reference
 const MENU_ITEMS = [
   { id: 'office', label: 'Office', icon: '🏢' },
-  { id: 'agents', label: 'Agenti', icon: '👤' },
-  { id: 'tasks', label: 'Task', icon: '📋' },
+  { id: 'agents', label: 'Agents', icon: '👤' },
+  { id: 'tasks', label: 'Tasks', icon: '📋' },
   { id: 'analytics', label: 'Analytics', icon: '📊' },
-  { id: 'activity', label: 'Attività', icon: '📜' },
+  { id: 'activity', label: 'Activity', icon: '📜' },
 ]
 
 /**

@@ -14,7 +14,7 @@ const ActivityPage = memo(({ activityLog }) => {
   return (
     <div className="activity-page">
       <div className="page-header">
-        <h2 className="pixel-font">ATTIVITÀ</h2>
+        <h2 className="pixel-font">ACTIVITY</h2>
         <div className="header-actions">
           <button className="btn-secondary" onClick={handleExportJSON}>JSON</button>
           <button className="btn-secondary" onClick={handleExportCSV}>CSV</button>
@@ -24,7 +24,7 @@ const ActivityPage = memo(({ activityLog }) => {
       <div className="activity-container glass-panel">
         <div className="activity-list-full">
           {activityLog.length === 0 ? (
-            <div className="empty-state">Nessuna attività recente</div>
+            <div className="empty-state">No recent activity</div>
           ) : (
             activityLog.map((log) => (
               <div key={log.id} className={`activity-item-full ${log.action === 'error' ? 'error' : ''}`}>

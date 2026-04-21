@@ -1,3 +1,11 @@
+/**
+ * Utility to set up native drag and drop listeners for Kanban board tasks and agents.
+ *
+ * @param {NodeList|Array} taskElements - DOM elements representing draggable tasks.
+ * @param {NodeList|Array} agentElements - DOM elements representing drop targets.
+ * @param {Function} onAssignTask - Callback when a task is dropped on an agent (agentId, taskId).
+ * @returns {Function} Cleanup function to remove event listeners.
+ */
 export const setupDragDrop = (taskElements, agentElements, onAssignTask) => {
   let draggedTask = null
 
