@@ -75,10 +75,21 @@ function getAgents() {
 }
 
 function handleRequest(req, res) {
-  // CORS headers
+  // Security and CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+  res.setHeader('Vary', 'Origin');
+
+  // Strict method validation
+  if (req.method !== 'GET' && req.method !== 'OPTIONS') {
+    res.writeHead(405, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Method Not Allowed' }));
+    return;
+  }
   
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
