@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { memo, useMemo } from 'react'
 import '../styles/AgentAvatar.css'
 
-const AgentAvatar = ({ status, size = 'medium', colorSeed = 0, id = '' }) => {
-  // Generate slightly different colors based on colorSeed or ID
-  const hoodieColors = ['#334155', '#475569', '#1e293b', '#374151', '#1f2937', '#44337a', '#285e61', '#744210', '#22543d']
-  const hairColors = ['#1a1a1a', '#451a03', '#27272a', '#3f3f46', '#2c1e14', '#4b3621']
+// Move constants outside component to avoid redundant hook overhead and share references
+const HOODIE_COLORS = ['#334155', '#475569', '#1e293b', '#374151', '#1f2937', '#44337a', '#285e61', '#744210', '#22543d']
+const HAIR_COLORS = ['#1a1a1a', '#451a03', '#27272a', '#3f3f46', '#2c1e14', '#4b3621']
 
+const AgentAvatar = memo(({ status, size = 'medium', colorSeed = 0, id = '' }) => {
   // Use id as fallback for colorSeed to ensure visual consistency across different views
-  const effectiveSeed = colorSeed !== 0 ? colorSeed : (id ? id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 0);
+  const effectiveSeed = useMemo(() =>
+    colorSeed !== 0 ? colorSeed : (id ? id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 0)
+  , [colorSeed, id]);
 
-  const hoodieColor = hoodieColors[effectiveSeed % hoodieColors.length]
-  const hairColor = hairColors[effectiveSeed % hairColors.length]
+  const hoodieColor = HOODIE_COLORS[effectiveSeed % HOODIE_COLORS.length]
+  const hairColor = HAIR_COLORS[effectiveSeed % HAIR_COLORS.length]
 
   return (
     <div
@@ -45,6 +47,6 @@ const AgentAvatar = ({ status, size = 'medium', colorSeed = 0, id = '' }) => {
       </div>
     </div>
   )
-}
+})
 
 export default AgentAvatar

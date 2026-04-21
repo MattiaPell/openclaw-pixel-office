@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useOpenClawAPI } from './hooks/useOpenClawAPI'
 import Sidebar from './components/Sidebar'
 import OfficePage from './components/OfficePage'
@@ -29,7 +29,7 @@ function App() {
   } = useOpenClawAPI()
 
   const [activePage, setActivePage] = useState('office')
-  const [selectedAgent, setSelectedAgent] = useState(null)
+  const [selectedAgentId, setSelectedAgentId] = useState(null)
   const [showAchievements, setShowAchievements] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [theme, setTheme] = useState('dark')
@@ -102,6 +102,20 @@ function App() {
     }
   }, [activityLog, playSound])
 
+  // Stabilize callbacks to prevent unnecessary re-renders of memoized components
+  const handleAgentClick = useCallback((agent) => {
+    setSelectedAgentId(agent.id)
+  }, [])
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedAgentId(null)
+  }, [])
+
+  // Memoize selected agent details to avoid redundant calculations
+  const selectedAgentDetails = useMemo(() => {
+    return selectedAgentId ? getAgentDetails(selectedAgentId) : null
+  }, [selectedAgentId, getAgentDetails])
+
   if (loading) {
     return (
       <div className="app loading">
@@ -113,7 +127,7 @@ function App() {
   const renderPage = () => {
     switch (activePage) {
       case 'office':
-        return <OfficePage agents={agents} onAgentClick={(agent) => setSelectedAgent(getAgentDetails(agent.id))} />
+        return <OfficePage agents={agents} onAgentClick={handleAgentClick} />
       case 'agents':
         return <AgentsPage agents={agents} onAddAgent={addAgent} onUpdateAgent={updateAgent} onDeleteAgent={deleteAgent} />
       case 'tasks':
@@ -165,7 +179,7 @@ function App() {
         </div>
       </main>
 
-      {selectedAgent && <AgentModal agent={selectedAgent} onClose={() => setSelectedAgent(null)} />}
+      {selectedAgentDetails && <AgentModal agent={selectedAgentDetails} onClose={handleCloseModal} />}
       {showAchievements && <AchievementsPanel achievements={achievements} onClose={() => setShowAchievements(false)} />}
       {showSettings && <SettingsModal theme={theme} onThemeChange={setTheme} soundEnabled={soundEnabled} onSoundChange={setSoundEnabled} onClose={() => setShowSettings(false)} />}
     </div>

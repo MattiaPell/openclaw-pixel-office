@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, memo, useMemo } from 'react'
 import CreateTaskModal from './CreateTaskModal'
 import '../styles/TasksPage.css'
 
-const TasksPage = ({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) => {
+const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) => {
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   const columns = [
@@ -11,7 +11,16 @@ const TasksPage = ({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) 
     { id: 'completed', label: 'Completato', icon: '✅' },
   ]
 
-  const getTasksByStatus = (status) => tasks.filter(t => t.status === status)
+  // Optimize task grouping: Single pass O(N) instead of multiple filters
+  const groupedTasks = useMemo(() => {
+    return tasks.reduce((acc, task) => {
+      if (!acc[task.status]) acc[task.status] = [];
+      acc[task.status].push(task);
+      return acc;
+    }, {});
+  }, [tasks]);
+
+  const getTasksByStatus = (status) => groupedTasks[status] || [];
 
   const handleCreateTask = (name) => {
     onCreateTask(name)
@@ -77,6 +86,6 @@ const TasksPage = ({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) 
       </div>
     </div>
   )
-}
+})
 
 export default TasksPage
