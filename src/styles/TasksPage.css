@@ -5,6 +5,18 @@
   flex-direction: column;
 }
 
+.tasks-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tasks-page .header-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .kanban-board {
   display: flex;
   gap: 20px;
