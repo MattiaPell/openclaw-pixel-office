@@ -59,17 +59,20 @@ function getAgents() {
       status = 'offline';
     }
     
-    agents.push({
-      id: session.sessionId || key,
-      name,
-      status,
-      type,
-      channel,
-      model: `openclaw/${agentId}`, // spec: gateway/openai-http-api#agent-first-model-contract
-      sessionKey: key,
-      lastUpdate: new Date(lastUpdate).toISOString(),
-      task: session.currentTask || null
-    });
+    // spec: gateway/openai-http-api#model-list-and-agent-routing (exclude sub-agents)
+    if (type !== 'dreaming') {
+      agents.push({
+        id: session.sessionId || key,
+        name,
+        status,
+        type,
+        channel,
+        model: `openclaw/${agentId}`, // spec: gateway/openai-http-api#agent-first-model-contract
+        sessionKey: key,
+        lastUpdate: new Date(lastUpdate).toISOString(),
+        task: session.currentTask || null
+      });
+    }
   }
   
   return agents;
@@ -117,9 +120,16 @@ function handleRequest(req, res) {
   
   // Single agent details
   if (url.pathname.startsWith('/api/agents/')) {
-    const agentId = url.pathname.replace('/api/agents/', '');
+    let agentId = url.pathname.replace('/api/agents/', '');
+    // Support URL-encoded model IDs like openclaw%2Fdefault
+    agentId = decodeURIComponent(agentId);
+
     const agents = getAgents();
-    const agent = agents.find(a => a.id === agentId || a.sessionKey === agentId);
+    const agent = agents.find(a =>
+      a.id === agentId ||
+      a.sessionKey === agentId ||
+      a.model === agentId
+    );
     
     if (agent) {
       res.writeHead(200, { 'Content-Type': 'application/json' });

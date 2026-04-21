@@ -141,15 +141,22 @@ export function useOpenClawAPI() {
           // Fallback to local
           const savedAgents = localStorage.getItem(STORAGE_KEY)
           const configAgents = import.meta.env.VITE_AGENTS
+        let initialAgents = []
           if (savedAgents) {
             try {
-              setAgents(JSON.parse(savedAgents))
+            initialAgents = JSON.parse(savedAgents)
             } catch (e) {
-              setAgents(configAgents ? JSON.parse(configAgents) : [])
+            initialAgents = configAgents ? JSON.parse(configAgents) : []
             }
           } else {
-            setAgents(configAgents ? JSON.parse(configAgents) : [])
+          initialAgents = configAgents ? JSON.parse(configAgents) : []
           }
+
+        // spec: gateway/openai-http-api#agent-first-model-contract (normalize models)
+        setAgents(initialAgents.map(a => ({
+          ...a,
+          model: a.model ? (a.model.startsWith('openclaw/') ? a.model : `openclaw/${a.model}`) : 'openclaw/default'
+        })))
           setConnectionMode('local')
           setIsOnline(false)
         }
@@ -237,12 +244,17 @@ export function useOpenClawAPI() {
   }, [])
 
   const addAgent = useCallback((agentData) => {
+    // spec: gateway/openai-http-api#agent-first-model-contract (normalize models)
+    const modelId = agentData.model || 'default'
+    const normalizedModel = modelId.startsWith('openclaw/') ? modelId : `openclaw/${modelId}`
+
     const newAgent = {
       id: `agent-${Date.now()}`,
       status: 'idle',
       completedTasks: 0,
       sprite: 'claw-idle',
-      ...agentData
+      ...agentData,
+      model: normalizedModel
     }
     setAgents(prev => {
       const updated = [...prev, newAgent]
