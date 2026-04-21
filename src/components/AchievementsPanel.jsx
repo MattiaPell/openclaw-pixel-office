@@ -19,7 +19,7 @@ export default function AchievementsPanel({ achievements, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content achievements-modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
         
         <div className="achievements-header">
           <h2>🏆 ACHIEVEMENTS</h2>
