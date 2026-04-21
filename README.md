@@ -1,5 +1,8 @@
 # OpenClaw Pixel Office Dashboard
 
+#100% Vibecoded
+#If you see this message, don't use it!
+
 Una dashboard moderna ed accattivante in stile "Glassmorphism" per monitorare e gestire gli agenti OpenClaw, con un ufficio virtuale in pixel art.
 
 ![OpenClaw Pixel Office](https://via.placeholder.com/800x400?text=OpenClaw+Pixel+Office+Modern)
