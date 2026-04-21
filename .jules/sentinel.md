@@ -16,3 +16,8 @@ This journal tracks critical security learnings discovered during the protection
 **Vulnerability:** The local API server lacked standard security headers and accepted all HTTP methods.
 **Learning:** Even internal or local-only API servers should implement defense-in-depth measures like CSP, X-Frame-Options, and strict method validation to prevent cross-site leaks or unexpected state modifications if the server is exposed or targeted via CSRF/XSS.
 **Prevention:** Implement a standard set of security headers for all responses and strictly validate allowed HTTP methods.
+
+## 2026-04-21 - CSV Injection (Formula Injection)
+**Vulnerability:** Exported CSV files contained raw user-supplied data without sanitization.
+**Learning:** Spreadsheet software may execute cells starting with `=`, `+`, `-`, or `@` as formulas, potentially leading to remote code execution or data exfiltration when a user opens a malicious export.
+**Prevention:** Sanitize all user-controlled fields in CSV exports by prepending a single quote (`'`) to any value starting with formula-triggering characters.
