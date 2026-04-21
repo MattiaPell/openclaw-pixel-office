@@ -82,24 +82,33 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-panel">
-            <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
-            <h2 className="pixel-font">{editingAgent ? 'MODIFICA AGENTE' : 'AGGIUNGI AGENTE'}</h2>
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div
+            className="modal-content glass-panel"
+            onClick={e => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="agent-modal-title"
+          >
+            <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Chiudi">✕</button>
+            <h2 className="pixel-font" id="agent-modal-title">{editingAgent ? 'MODIFICA AGENTE' : 'AGGIUNGI AGENTE'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Nome</label>
+                <label htmlFor="agent-name">Nome</label>
                 <input
+                  id="agent-name"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   maxLength={50}
                   required
+                  autoFocus
                 />
               </div>
               <div className="form-group">
-                <label>Identità</label>
+                <label htmlFor="agent-identity">Identità</label>
                 <input
+                  id="agent-identity"
                   type="text"
                   value={formData.identity}
                   onChange={(e) => setFormData({ ...formData, identity: e.target.value })}
@@ -107,8 +116,9 @@ const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) =
                 />
               </div>
               <div className="form-group">
-                <label>Modello</label>
+                <label htmlFor="agent-model">Modello</label>
                 <input
+                  id="agent-model"
                   type="text"
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
