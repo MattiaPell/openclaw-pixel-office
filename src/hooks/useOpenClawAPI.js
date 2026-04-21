@@ -5,6 +5,29 @@ const TASKS_KEY = 'openclaw-office-tasks'
 const LOG_KEY = 'openclaw-office-log'
 const ACHIEVEMENTS_KEY = 'openclaw-office-achievements'
 
+/**
+ * Hook for managing OpenClaw agents, tasks, and activity logs.
+ * Handles synchronization between local storage, internal API server, and OpenClaw Gateway.
+ *
+ * @returns {Object} An object containing state and methods for OpenClaw dashboard.
+ * @property {Array} agents - List of active agents.
+ * @property {Array} tasks - List of tasks in the Kanban board.
+ * @property {Array} activityLog - Recent system activities.
+ * @property {Array} achievements - Earned achievements.
+ * @property {boolean} loading - Loading state for initial data fetch.
+ * @property {string|null} error - Error message if any.
+ * @property {boolean} isOnline - Connection status to external services.
+ * @property {string} connectionMode - Current mode ('local' or 'cloud').
+ * @property {Function} assignTask - Assigns a task to an agent.
+ * @property {Function} createTask - Creates a new task.
+ * @property {Function} updateTask - Updates task details.
+ * @property {Function} deleteTask - Deletes a task.
+ * @property {Function} getAgentDetails - Retrieves extended info for an agent.
+ * @property {Function} retry - Retries connection to external services.
+ * @property {Function} addAgent - Manually adds a local agent.
+ * @property {Function} updateAgent - Updates agent details.
+ * @property {Function} deleteAgent - Removes an agent.
+ */
 export function useOpenClawAPI() {
   const [agents, setAgents] = useState([])
   const [tasks, setTasks] = useState([])
@@ -214,7 +237,7 @@ export function useOpenClawAPI() {
         localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(updated))
         return updated
       })
-      earned.forEach(a => addLogEntry('Sistema', 'achievement', `🏆 Ottenuto: ${a.name}`))
+      earned.forEach(a => addLogEntry('System', 'achievement', `🏆 Earned: ${a.name}`))
     }
   }, [agents, achievements, tasks])
 
@@ -253,7 +276,7 @@ export function useOpenClawAPI() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
-    addLogEntry('Sistema', 'created_agent', newAgent.name)
+    addLogEntry('System', 'created_agent', newAgent.name)
     return newAgent
   }, [addLogEntry])
 
@@ -272,7 +295,7 @@ export function useOpenClawAPI() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
-    if (agent) addLogEntry('Sistema', 'deleted_agent', agent.name)
+    if (agent) addLogEntry('System', 'deleted_agent', agent.name)
   }, [agents, addLogEntry])
 
   const assignTask = useCallback((agentId, taskId) => {
@@ -337,7 +360,7 @@ export function useOpenClawAPI() {
       checkAchievements(null)
       return updated
     })
-    addLogEntry('Utente', 'created_task', name)
+    addLogEntry('User', 'created_task', name)
     return newTask
   }, [addLogEntry, checkAchievements])
 
@@ -359,7 +382,7 @@ export function useOpenClawAPI() {
       return updated
     })
     if (task) {
-      addLogEntry('Utente', 'deleted_task', task.name)
+      addLogEntry('User', 'deleted_task', task.name)
     }
   }, [tasks, addLogEntry])
 
@@ -389,7 +412,7 @@ export function useOpenClawAPI() {
       setError(null)
     } else {
       setIsOnline(false)
-      setError('Impossibile connettersi al Gateway OpenClaw')
+      setError('Unable to connect to OpenClaw Gateway')
     }
     setLoading(false)
   }, [fetchExternalAgents])

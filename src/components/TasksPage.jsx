@@ -8,8 +8,8 @@ const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTas
 
   const columns = [
     { id: 'pending', label: 'To Do', icon: '📝' },
-    { id: 'in_progress', label: 'In Corso', icon: '⚡' },
-    { id: 'completed', label: 'Completato', icon: '✅' },
+    { id: 'in_progress', label: 'In Progress', icon: '⚡' },
+    { id: 'completed', label: 'Completed', icon: '✅' },
   ]
 
   // Optimize task grouping: Single pass O(N) instead of multiple filters
@@ -39,11 +39,11 @@ const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTas
   return (
     <div className="tasks-page">
       <div className="page-header">
-        <h2 className="pixel-font">TASK</h2>
+        <h2 className="pixel-font">TASKS</h2>
         <div className="header-actions">
           <button className="btn-secondary" onClick={handleExportJSON}>JSON</button>
           <button className="btn-secondary" onClick={handleExportCSV}>CSV</button>
-          <button className="btn-primary" onClick={() => setShowCreateModal(true)}>+ NUOVO TASK</button>
+          <button className="btn-primary" onClick={() => setShowCreateModal(true)}>+ NEW TASK</button>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTas
                           onChange={(e) => onAssignTask(e.target.value, task.id)}
                           defaultValue=""
                         >
-                          <option value="" disabled>Assegna a...</option>
+                          <option value="" disabled>Assign to...</option>
                           {agents.map(a => (
                             <option key={a.id} value={a.id}>{a.name}</option>
                           ))}
@@ -86,7 +86,7 @@ const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTas
                     <button
                       className="btn-icon delete"
                       onClick={() => onDeleteTask(task.id)}
-                      aria-label="Elimina task"
+                      aria-label="Delete task"
                     >
                       🗑️
                     </button>
