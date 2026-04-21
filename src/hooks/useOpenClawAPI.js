@@ -16,6 +16,10 @@ export function useOpenClawAPI() {
   const [connectionMode, setConnectionMode] = useState('local')
   const logIdRef = useRef(0)
   const startTime = useRef(Date.now())
+  const wsRef = useRef(null)
+  const reconnectTimeoutRef = useRef(null)
+  const silenceTimeoutRef = useRef(null)
+  const backoffRef = useRef(1000)
 
   // Use API server if available, fallback to direct gateway or env
   const API_URL = import.meta.env.VITE_OPENCLAW_API_URL
@@ -378,22 +382,143 @@ export function useOpenClawAPI() {
     setLoading(false)
   }, [fetchExternalAgents])
 
-  // Periodic polling for cloud mode
-  useEffect(() => {
-    if (connectionMode !== 'cloud') return
+  // WebSocket implementation
+  const connectWS = useCallback(() => {
+    if (!GATEWAY_URL) return
 
-    const interval = setInterval(async () => {
-      const externalAgents = await fetchExternalAgents()
-      if (externalAgents) {
-        setAgents(externalAgents)
-        setIsOnline(true)
-      } else {
-        setIsOnline(false)
+    // Clean up existing connection
+    if (wsRef.current) {
+      wsRef.current.close()
+      wsRef.current = null
+    }
+
+    const wsUrl = GATEWAY_URL.replace(/^http/, 'ws')
+    const socket = new WebSocket(wsUrl)
+    wsRef.current = socket
+
+    const resetSilenceTimer = (intervalMs = 30000) => {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
+      // spec: gateway/protocol#client-constants (Tick-timeout trigger = tickIntervalMs * 2)
+      silenceTimeoutRef.current = setTimeout(() => {
+        console.warn('WS tick timeout, closing...')
+        socket.close(4000) // spec: gateway/protocol#client-constants (Tick-timeout close code = 4000)
+      }, intervalMs * 2)
+    }
+
+    socket.onopen = () => {
+      console.log('WS connected to Gateway')
+      backoffRef.current = 1000 // Reset backoff on success
+      resetSilenceTimer() // Start with default pre-auth interval
+    }
+
+    socket.onmessage = (event) => {
+      resetSilenceTimer() // Any message resets silence timer
+
+      try {
+        const frame = JSON.parse(event.data)
+
+        // spec: gateway/protocol#handshake-connect
+        if (frame.type === 'event' && frame.event === 'connect.challenge') {
+          const connectReq = {
+            type: 'req',
+            id: `connect-${Date.now()}`,
+            method: 'connect',
+            params: {
+              minProtocol: 3, // spec: gateway/protocol#versioning
+              maxProtocol: 3,
+              client: {
+                id: 'pixel-office-dashboard',
+                version: '1.0.0',
+                platform: 'web',
+                mode: 'operator'
+              },
+              role: 'operator',
+              scopes: ['operator.read', 'operator.write'],
+              auth: GATEWAY_TOKEN ? { token: GATEWAY_TOKEN } : {},
+              device: {
+                id: 'browser-dash-' + startTime.current,
+                nonce: frame.payload.nonce
+              }
+            }
+          }
+          socket.send(JSON.stringify(connectReq))
+        }
+
+        if (frame.type === 'res' && frame.ok && frame.payload?.type === 'hello-ok') {
+          console.log('WS Handshake complete')
+          setIsOnline(true)
+          setConnectionMode('cloud')
+          setError(null)
+
+          if (frame.payload.policy?.tickIntervalMs) {
+            resetSilenceTimer(frame.payload.policy.tickIntervalMs)
+          }
+
+          // Initial snapshot handling if available
+          if (frame.payload.snapshot?.agents) {
+            setAgents(frame.payload.snapshot.agents)
+          }
+        }
+
+        // Real-time event handling
+        if (frame.type === 'event') {
+          if (frame.event === 'presence' || frame.event === 'agents.changed') {
+            // In a real app we'd fetch or update agents here
+            fetchExternalAgents().then(data => {
+              if (data) setAgents(data)
+            })
+          }
+          if (frame.event === 'tick') {
+            // Already handled by resetSilenceTimer at the top of onmessage
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse WS frame:', e)
       }
-    }, 10000)
+    }
+
+    socket.onclose = (event) => {
+      console.warn(`WS disconnected: ${event.code} ${event.reason}`)
+      setIsOnline(false)
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
+
+      // spec: gateway/protocol#client-constants (Max reconnect backoff = 30_000)
+      const nextBackoff = Math.min(backoffRef.current * 2, 30000)
+      backoffRef.current = nextBackoff
+
+      reconnectTimeoutRef.current = setTimeout(connectWS, nextBackoff)
+    }
+
+    socket.onerror = (err) => {
+      console.error('WS error:', err)
+    }
+  }, [GATEWAY_URL, GATEWAY_TOKEN, fetchExternalAgents])
+
+  useEffect(() => {
+    connectWS()
+    return () => {
+      if (wsRef.current) wsRef.current.close()
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
+    }
+  }, [connectWS])
+
+  // Periodic polling fallback if WS is not available or as secondary sync
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      // Only poll if not in a healthy WS session or to ensure sync
+      if (!isOnline || connectionMode !== 'cloud') {
+        const externalAgents = await fetchExternalAgents()
+        if (externalAgents) {
+          setAgents(externalAgents)
+          setIsOnline(true)
+          setConnectionMode('cloud')
+        }
+      }
+    }, 30000)
 
     return () => clearInterval(interval)
-  }, [connectionMode, fetchExternalAgents])
+  }, [isOnline, connectionMode, fetchExternalAgents])
 
   return {
     agents,
