@@ -31,7 +31,16 @@ export function useOpenClawAPI() {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
-        const response = await fetch(`${API_URL}/api/agents`, { signal: controller.signal })
+
+        const headers = { 'Accept': 'application/json' };
+        if (GATEWAY_TOKEN) {
+          headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`;
+        }
+
+        const response = await fetch(`${API_URL}/api/agents`, {
+          headers,
+          signal: controller.signal
+        })
         clearTimeout(timeoutId);
 
         if (response.ok) {
@@ -44,7 +53,9 @@ export function useOpenClawAPI() {
               task: a.task || a.currentTask || null,
               completedTasks: a.completedTasks || 0,
               type: a.type || 'local',
-              channel: a.channel || 'local'
+              channel: a.channel || 'local',
+              model: a.model || null,
+              sessionKey: a.sessionKey || null
             }))
           }
         }
@@ -85,7 +96,8 @@ export function useOpenClawAPI() {
                 task: null,
                 completedTasks: 0,
                 type: 'cloud',
-                channel: 'gateway'
+                channel: 'gateway',
+                model: m.id // spec: gateway/openai-http-api#agent-first-model-contract
               };
             });
           }
@@ -118,29 +130,32 @@ export function useOpenClawAPI() {
 
     const initAgents = async () => {
       setLoading(true)
-      const externalAgents = await fetchExternalAgents()
+      try {
+        const externalAgents = await fetchExternalAgents()
 
-      if (externalAgents) {
-        setAgents(externalAgents)
-        setConnectionMode('cloud')
-        setIsOnline(true)
-      } else {
-        // Fallback to local
-        const savedAgents = localStorage.getItem(STORAGE_KEY)
-        const configAgents = import.meta.env.VITE_AGENTS
-        if (savedAgents) {
-          try {
-            setAgents(JSON.parse(savedAgents))
-          } catch (e) {
+        if (externalAgents) {
+          setAgents(externalAgents)
+          setConnectionMode('cloud')
+          setIsOnline(true)
+        } else {
+          // Fallback to local
+          const savedAgents = localStorage.getItem(STORAGE_KEY)
+          const configAgents = import.meta.env.VITE_AGENTS
+          if (savedAgents) {
+            try {
+              setAgents(JSON.parse(savedAgents))
+            } catch (e) {
+              setAgents(configAgents ? JSON.parse(configAgents) : [])
+            }
+          } else {
             setAgents(configAgents ? JSON.parse(configAgents) : [])
           }
-        } else {
-          setAgents(configAgents ? JSON.parse(configAgents) : [])
+          setConnectionMode('local')
+          setIsOnline(false)
         }
-        setConnectionMode('local')
-        setIsOnline(false)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     initAgents()
@@ -170,9 +185,6 @@ export function useOpenClawAPI() {
         console.warn('Failed to parse saved achievements:', e)
       }
     }
-
-    setLoading(false)
-    setIsOnline(true)
   }, [])
 
   // Check for new achievements
