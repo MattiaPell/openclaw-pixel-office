@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useOpenClawAPI } from './hooks/useOpenClawAPI'
 import Sidebar from './components/Sidebar'
 import OfficePage from './components/OfficePage'
@@ -36,6 +36,7 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [theme, setTheme] = useState('dark')
   const [soundEnabled, setSoundEnabled] = useState(false)
+  const audioContextRef = useRef(null)
 
   // Load preferences from localStorage
   useEffect(() => {
@@ -52,10 +53,20 @@ function App() {
   }, [theme])
 
   // Sound effects
-  const playSound = useCallback((soundType) => {
+  // Optimization: Reuse AudioContext to reduce latency and resource usage
+  const playSound = useCallback(async (soundType) => {
     if (!soundEnabled) return
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+      }
+      const audioContext = audioContextRef.current
+
+      // Resume context if suspended (browser autoplay policy)
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume()
+      }
+
       const oscillator = audioContext.createOscillator()
       const gainNode = audioContext.createGain()
       oscillator.connect(gainNode)
