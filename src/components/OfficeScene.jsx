@@ -35,7 +35,15 @@ const OfficeScene = memo(function OfficeScene({ agents, onAgentClick }) {
             className={`agent ${agent.status}`}
             style={{ left: `${100 + index * 180}px` }}
             onClick={() => onAgentClick && onAgentClick(agent)}
-            title={`${agent.name} - ${agent.status}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onAgentClick && onAgentClick(agent)
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={`Agent ${agent.name}, status: ${agent.status}${agent.task ? `, task: ${agent.task}` : ''}`}
           >
             <AgentAvatar status={agent.status} colorSeed={index} id={agent.id} />
             <div className="agent-label">

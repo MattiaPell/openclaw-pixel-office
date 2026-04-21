@@ -324,9 +324,15 @@
   filter: drop-shadow(0 15px 4px rgba(0,0,0,0.5));
 }
 
-.agent:hover {
+.agent:hover, .agent:focus {
   transform: scale(1.15) translateY(-5px);
   z-index: 10;
+  outline: none;
+}
+
+.agent:focus-visible {
+  box-shadow: 0 0 0 4px var(--accent-primary);
+  border-radius: 8px;
 }
 
 

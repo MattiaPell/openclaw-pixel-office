@@ -189,7 +189,7 @@ function App() {
           </div>
         </header>
 
-        {error && <div className="error-banner">⚠️ Errore: {error}</div>}
+        {error && <div className="error-banner">⚠️ Error: {error}</div>}
 
         <div className="page-content">
           {renderPage()}
