@@ -121,7 +121,7 @@ function App() {
   if (loading) {
     return (
       <div className="app loading">
-        <div className="loading-text pixel-font">CARICAMENTO...</div>
+        <div className="loading-text pixel-font">LOADING...</div>
       </div>
     )
   }
@@ -161,7 +161,7 @@ function App() {
             </span>
             {!isOnline && (
               <button className="retry-btn" onClick={retry}>
-                RIPROVA
+                RETRY
               </button>
             )}
             <div className="header-actions">
@@ -172,7 +172,7 @@ function App() {
               </button>
               <button className="action-pill" onClick={() => setShowSettings(true)}>
                 <span className="icon">⚙️</span>
-                <span className="label">Impostazioni</span>
+                <span className="label">Settings</span>
               </button>
             </div>
           </div>

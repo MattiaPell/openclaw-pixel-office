@@ -12,22 +12,22 @@ export default function SettingsModal({
       <div className="modal-content settings-modal" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
         
-        <h2>⚙️ IMPOSTAZIONI</h2>
+        <h2>⚙️ SETTINGS</h2>
 
         <div className="settings-section">
-          <h3>🎨 TEMA</h3>
+          <h3>🎨 THEME</h3>
           <div className="theme-options">
             <button 
               className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
               onClick={() => onThemeChange('dark')}
             >
-              🌙 Scuro
+              🌙 Dark
             </button>
             <button 
               className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
               onClick={() => onThemeChange('light')}
             >
-              ☀️ Chiaro
+              ☀️ Light
             </button>
             <button 
               className={`theme-btn ${theme === 'retro' ? 'active' : ''}`}
@@ -39,9 +39,9 @@ export default function SettingsModal({
         </div>
 
         <div className="settings-section">
-          <h3>🔊 SUONI</h3>
+          <h3>🔊 SOUNDS</h3>
           <div className="toggle-option">
-            <span>Suoni 8-bit</span>
+            <span>8-bit Sounds</span>
             <label className="toggle-switch">
               <input 
                 type="checkbox" 

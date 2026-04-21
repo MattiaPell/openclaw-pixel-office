@@ -1,14 +1,14 @@
 import '../styles/AchievementsPanel.css'
 
 const ALL_ACHIEVEMENTS = [
-  { id: 'first_task', name: 'Primo Passo', desc: 'Completa il primo task', icon: '🎯', check: () => false },
-  { id: 'speedster', name: 'Speedster', desc: 'Completa 3 task in meno di 1 ora', icon: '⚡', check: () => false },
-  { id: 'marathon', name: 'Maratoneta', desc: 'Completa 10 task', icon: '🏃', check: () => false },
-  { id: 'centurion', name: 'Centurione', desc: 'Completa 100 task', icon: '💯', check: () => false },
-  { id: 'always_online', name: 'Sempre Online', desc: 'Usa la dashboard per 1 ora', icon: '🌐', check: () => false },
-  { id: 'early_bird', name: 'Mattutino', desc: 'Usa la dashboard alle 6 del mattino', icon: '🌅', check: () => false },
-  { id: 'night_owl', name: 'Notturno', desc: 'Usa la dashboard dopo mezzanotte', icon: '🦉', check: () => false },
-  { id: 'task_master', name: 'Task Master', desc: 'Crea 50 task', icon: '📋', check: () => false },
+  { id: 'first_task', name: 'First Step', desc: 'Complete the first task', icon: '🎯', check: () => false },
+  { id: 'speedster', name: 'Speedster', desc: 'Complete 3 tasks in less than 1 hour', icon: '⚡', check: () => false },
+  { id: 'marathon', name: 'Marathoner', desc: 'Complete 10 tasks', icon: '🏃', check: () => false },
+  { id: 'centurion', name: 'Centurion', desc: 'Complete 100 tasks', icon: '💯', check: () => false },
+  { id: 'always_online', name: 'Always Online', desc: 'Use the dashboard for 1 hour', icon: '🌐', check: () => false },
+  { id: 'early_bird', name: 'Early Bird', desc: 'Use the dashboard at 6 AM', icon: '🌅', check: () => false },
+  { id: 'night_owl', name: 'Night Owl', desc: 'Use the dashboard after midnight', icon: '🦉', check: () => false },
+  { id: 'task_master', name: 'Task Master', desc: 'Create 50 tasks', icon: '📋', check: () => false },
 ]
 
 export default function AchievementsPanel({ achievements, onClose }) {
@@ -19,7 +19,7 @@ export default function AchievementsPanel({ achievements, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content achievements-modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
         
         <div className="achievements-header">
           <h2>🏆 ACHIEVEMENTS</h2>
