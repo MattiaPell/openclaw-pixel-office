@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { memo } from 'react'
 import OfficeScene from './OfficeScene'
 import '../styles/OfficePage.css'
 
-const OfficePage = ({ agents, onAgentClick }) => {
+const OfficePage = memo(({ agents, onAgentClick }) => {
   return (
     <div className="office-page">
       <div className="page-header">
@@ -13,6 +13,6 @@ const OfficePage = ({ agents, onAgentClick }) => {
       </div>
     </div>
   )
-}
+})
 
 export default OfficePage

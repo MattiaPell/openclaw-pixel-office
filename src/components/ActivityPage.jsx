@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { memo } from 'react'
 import '../styles/ActivityPage.css'
 
-const ActivityPage = ({ activityLog }) => {
+const ActivityPage = memo(({ activityLog }) => {
   return (
     <div className="activity-page">
       <div className="page-header">
@@ -26,6 +26,6 @@ const ActivityPage = ({ activityLog }) => {
       </div>
     </div>
   )
-}
+})
 
 export default ActivityPage
