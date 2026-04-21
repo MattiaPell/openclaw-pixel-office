@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import OfficePage from './components/OfficePage'
 import AgentsPage from './components/AgentsPage'
 import TasksPage from './components/TasksPage'
+import AnalyticsPage from './components/AnalyticsPage'
 import ActivityPage from './components/ActivityPage'
 import AgentModal from './components/AgentModal'
 import AchievementsPanel from './components/AchievementsPanel'
@@ -132,6 +133,8 @@ function App() {
         return <AgentsPage agents={agents} onAddAgent={addAgent} onUpdateAgent={updateAgent} onDeleteAgent={deleteAgent} />
       case 'tasks':
         return <TasksPage tasks={tasks} agents={agents} onAssignTask={assignTask} onDeleteTask={deleteTask} onCreateTask={createTask} />
+      case 'analytics':
+        return <AnalyticsPage agents={agents} tasks={tasks} activityLog={activityLog} />
       case 'activity':
         return <ActivityPage activityLog={activityLog} />
       default:
