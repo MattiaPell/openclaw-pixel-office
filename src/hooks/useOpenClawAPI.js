@@ -22,81 +22,85 @@ export function useOpenClawAPI() {
   const GATEWAY_URL = import.meta.env.VITE_OPENCLAW_GATEWAY_URL
   const GATEWAY_TOKEN = import.meta.env.VITE_OPENCLAW_GATEWAY_TOKEN
 
+  const fetchFromApi = useCallback(async () => {
+    if (!API_URL) return []
+    const RPC_TIMEOUT_MS = 30000
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS)
+      const headers = { 'Accept': 'application/json' }
+      if (GATEWAY_TOKEN) headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`
+
+      const response = await fetch(`${API_URL}/api/agents`, { headers, signal: controller.signal })
+      clearTimeout(timeoutId)
+      if (response.ok) {
+        const data = await response.json()
+        return (data || []).map(a => ({
+          id: a.id || a.sessionId || Math.random().toString(36).substr(2, 9),
+          name: a.name || a.sessionKey?.split(':').pop() || 'Agent',
+          status: a.status || 'idle',
+          task: a.task || a.currentTask || null,
+          completedTasks: a.completedTasks || 0,
+          type: a.type || 'local',
+          channel: a.channel || 'local',
+          model: a.model || null,
+          sessionKey: a.sessionKey || null
+        }))
+      }
+    } catch (e) { console.warn('API server fetch failed:', e) }
+    return []
+  }, [API_URL, GATEWAY_TOKEN])
+
+  const fetchFromGateway = useCallback(async () => {
+    if (!GATEWAY_URL) return []
+    const RPC_TIMEOUT_MS = 30000
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS)
+      const headers = { 'Accept': 'application/json' }
+      if (GATEWAY_TOKEN) headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`
+
+      const response = await fetch(`${GATEWAY_URL}/v1/models`, { headers, signal: controller.signal })
+      clearTimeout(timeoutId)
+      if (response.ok) {
+        const body = await response.json()
+        const models = body.data || []
+        return models
+          .filter(m => {
+            const isSubAgent = m.id.includes('dreaming') || m.id.includes('sub-')
+            return m.id.startsWith('openclaw') && !isSubAgent
+          })
+          .map(m => {
+            const agentId = m.id.startsWith('openclaw/') ? m.id.split('/')[1] : m.id
+            return {
+              id: m.id,
+              name: agentId.charAt(0).toUpperCase() + agentId.slice(1),
+              status: 'idle',
+              task: null,
+              completedTasks: 0,
+              type: 'cloud',
+              channel: 'gateway',
+              model: m.id
+            }
+          })
+      }
+    } catch (e) { console.warn('Gateway fetch failed:', e) }
+    return []
+  }, [GATEWAY_URL, GATEWAY_TOKEN])
+
   const fetchExternalAgents = useCallback(async () => {
-    // spec: gateway/protocol#client-constants (requestTimeoutMs = 30_000)
-    const RPC_TIMEOUT_MS = 30000;
+    const [apiResults, gatewayResults] = await Promise.all([
+      fetchFromApi(),
+      fetchFromGateway()
+    ])
 
-    // Try API server first (preferred method)
-    if (API_URL) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
-        const response = await fetch(`${API_URL}/api/agents`, { signal: controller.signal })
-        clearTimeout(timeoutId);
+    // Merge results, prioritizing API results for the same model ID (richer metadata)
+    const merged = new Map()
+    gatewayResults.forEach(a => merged.set(a.model || a.id, a))
+    apiResults.forEach(a => merged.set(a.model || a.id, a))
 
-        if (response.ok) {
-          const data = await response.json()
-          if (Array.isArray(data) && data.length > 0) {
-            return data.map(a => ({
-              id: a.id || a.sessionId || Math.random().toString(36).substr(2, 9),
-              name: a.name || a.sessionKey?.split(':').pop() || 'Agent',
-              status: a.status || 'idle',
-              task: a.task || a.currentTask || null,
-              completedTasks: a.completedTasks || 0,
-              type: a.type || 'local',
-              channel: a.channel || 'local'
-            }))
-          }
-        }
-      } catch (e) {
-        console.warn('API server fetch failed, trying gateway:', e)
-      }
-    }
-
-    // spec: gateway/openai-http-api#model-list-and-agent-routing
-    // Fallback to direct Gateway OpenAI HTTP API
-    if (GATEWAY_URL) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
-
-        const headers = { 'Accept': 'application/json' };
-        if (GATEWAY_TOKEN) {
-          headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`;
-        }
-
-        const response = await fetch(`${GATEWAY_URL}/v1/models`, {
-          headers,
-          signal: controller.signal
-        })
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const body = await response.json()
-          // OpenAI /v1/models returns { data: [ { id: "openclaw/..." }, ... ] }
-          const models = body.data || [];
-          if (Array.isArray(models) && models.length > 0) {
-            return models.map(m => {
-              const agentId = m.id.startsWith('openclaw/') ? m.id.split('/')[1] : m.id;
-              return {
-                id: m.id,
-                name: agentId.charAt(0).toUpperCase() + agentId.slice(1),
-                status: 'idle', // HTTP models list doesn't report real-time status
-                task: null,
-                completedTasks: 0,
-                type: 'cloud',
-                channel: 'gateway'
-              };
-            });
-          }
-        }
-      } catch (e) {
-        console.warn('Direct gateway /v1/models fetch failed:', e)
-      }
-    }
-
-    return null
-  }, [API_URL, GATEWAY_URL, GATEWAY_TOKEN])
+    return Array.from(merged.values())
+  }, [fetchFromApi, fetchFromGateway])
 
   // Achievement definitions
   const ACHIEVEMENT_DEFS = [
@@ -118,29 +122,39 @@ export function useOpenClawAPI() {
 
     const initAgents = async () => {
       setLoading(true)
-      const externalAgents = await fetchExternalAgents()
+      try {
+        const externalAgents = await fetchExternalAgents()
 
-      if (externalAgents) {
-        setAgents(externalAgents)
-        setConnectionMode('cloud')
-        setIsOnline(true)
-      } else {
-        // Fallback to local
-        const savedAgents = localStorage.getItem(STORAGE_KEY)
-        const configAgents = import.meta.env.VITE_AGENTS
-        if (savedAgents) {
-          try {
-            setAgents(JSON.parse(savedAgents))
-          } catch (e) {
-            setAgents(configAgents ? JSON.parse(configAgents) : [])
-          }
+        if (externalAgents.length > 0) {
+          setAgents(externalAgents)
+          setConnectionMode('cloud')
+          setIsOnline(true)
         } else {
-          setAgents(configAgents ? JSON.parse(configAgents) : [])
+          // Fallback to local
+          const savedAgents = localStorage.getItem(STORAGE_KEY)
+          const configAgents = import.meta.env.VITE_AGENTS
+          let initialAgents = []
+          if (savedAgents) {
+            try {
+              initialAgents = JSON.parse(savedAgents)
+            } catch (e) {
+              initialAgents = configAgents ? JSON.parse(configAgents) : []
+            }
+          } else {
+            initialAgents = configAgents ? JSON.parse(configAgents) : []
+          }
+
+          // spec: gateway/openai-http-api#agent-first-model-contract (normalize models)
+          setAgents(initialAgents.map(a => ({
+            ...a,
+            model: a.model ? (a.model.startsWith('openclaw/') ? a.model : `openclaw/${a.model}`) : 'openclaw/default'
+          })))
+          setConnectionMode('local')
+          setIsOnline(false)
         }
-        setConnectionMode('local')
-        setIsOnline(false)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     initAgents()
@@ -170,9 +184,6 @@ export function useOpenClawAPI() {
         console.warn('Failed to parse saved achievements:', e)
       }
     }
-
-    setLoading(false)
-    setIsOnline(true)
   }, [])
 
   // Check for new achievements
@@ -225,12 +236,17 @@ export function useOpenClawAPI() {
   }, [])
 
   const addAgent = useCallback((agentData) => {
+    // spec: gateway/openai-http-api#agent-first-model-contract (normalize models)
+    const modelId = agentData.model || 'default'
+    const normalizedModel = modelId.startsWith('openclaw/') ? modelId : `openclaw/${modelId}`
+
     const newAgent = {
       id: `agent-${Date.now()}`,
       status: 'idle',
       completedTasks: 0,
       sprite: 'claw-idle',
-      ...agentData
+      ...agentData,
+      model: normalizedModel
     }
     setAgents(prev => {
       const updated = [...prev, newAgent]
