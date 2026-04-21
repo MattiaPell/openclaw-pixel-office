@@ -11,3 +11,8 @@ This journal tracks critical security learnings discovered during the protection
 **Vulnerability:** Raw exception messages from `fetch` were being passed directly to the UI.
 **Learning:** Exposing internal error details can leak information about the backend architecture or network topology.
 **Prevention:** Always catch errors and replace them with generic, user-friendly messages before displaying them in the frontend.
+
+## 2026-04-21 - API Server Hardening
+**Vulnerability:** The local API server lacked standard security headers and accepted all HTTP methods.
+**Learning:** Even internal or local-only API servers should implement defense-in-depth measures like CSP, X-Frame-Options, and strict method validation to prevent cross-site leaks or unexpected state modifications if the server is exposed or targeted via CSRF/XSS.
+**Prevention:** Implement a standard set of security headers for all responses and strictly validate allowed HTTP methods.

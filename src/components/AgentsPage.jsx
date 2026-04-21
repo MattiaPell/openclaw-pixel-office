@@ -93,6 +93,7 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  maxLength={50}
                   required
                 />
               </div>
@@ -102,6 +103,7 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
                   type="text"
                   value={formData.identity}
                   onChange={(e) => setFormData({ ...formData, identity: e.target.value })}
+                  maxLength={100}
                 />
               </div>
               <div className="form-group">
@@ -110,6 +112,7 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
                   type="text"
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                  maxLength={50}
                 />
               </div>
               <div className="form-actions">
