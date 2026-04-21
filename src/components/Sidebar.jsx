@@ -6,6 +6,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
     { id: 'office', label: 'Office', icon: '🏢' },
     { id: 'agents', label: 'Agenti', icon: '👤' },
     { id: 'tasks', label: 'Task', icon: '📋' },
+    { id: 'analytics', label: 'Analytics', icon: '📊' },
     { id: 'activity', label: 'Attività', icon: '📜' },
   ]
 
