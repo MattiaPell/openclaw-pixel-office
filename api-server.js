@@ -65,6 +65,7 @@ function getAgents() {
       status,
       type,
       channel,
+      model: `openclaw/${agentId}`, // spec: gateway/openai-http-api#agent-first-model-contract
       sessionKey: key,
       lastUpdate: new Date(lastUpdate).toISOString(),
       task: session.currentTask || null
@@ -78,7 +79,7 @@ function handleRequest(req, res) {
   // Security and CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
