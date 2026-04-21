@@ -1,130 +1,146 @@
 # OpenClaw Pixel Office Dashboard
 
-#100% Vibecoded
-#If you see this message, don't use it!
-
-Una dashboard moderna ed accattivante in stile "Glassmorphism" per monitorare e gestire gli agenti OpenClaw, con un ufficio virtuale in pixel art.
+> A modern and engaging Glassmorphism-style dashboard to monitor and manage OpenClaw agents, featuring a virtual office in pixel art.
 
 ![OpenClaw Pixel Office](https://via.placeholder.com/800x400?text=OpenClaw+Pixel+Office+Modern)
 
-## ✨ Funzionalità
+## ✨ Features
 
 ### Core & UI
-- 🎨 **Design Moderno**: Estetica "Glassmorphism" con trasparenze, sfocature e gradienti dinamici.
-- 📂 **Struttura Multi-pagina**: Navigazione fluida tramite Sidebar tra Ufficio, Agenti, Task e Attività.
-- 🖼️ **Ufficio virtuale in pixel art**: Scene animate con agenti che camminano, lavorano o riposano.
-- 📋 **Tabella Kanban**: Gestione dei task tramite una board a tre colonne (Da fare, In Corso, Completato).
-- 👤 **Gestione Agenti**: CRUD completo (Crea, Leggi, Aggiorna, Elimina) degli agenti con profili dettagliati.
-- 🔄 **Real-time & Local**: Supporto per WebSocket/Polling e modalità offline con persistenza locale.
+- 🎨 **Modern Design**: Glassmorphism aesthetic with transparencies, blurs, and dynamic gradients.
+- 📂 **Multi-page Structure**: Fluid sidebar navigation between Office, Agents, Tasks, and Activity.
+- 🖼️ **Virtual Pixel Art Office**: Animated scenes with agents walking, working, or resting.
+- 📋 **Kanban Board**: Task management via a three-column board (To Do, In Progress, Completed).
+- 👤 **Agent Management**: Full CRUD (Create, Read, Update, Delete) for agents with detailed profiles.
+- 🔄 **Real-time & Local**: Support for WebSocket/Polling and offline mode with local persistence.
 
-### Gamification & Extra
-- 🏆 **Achievements**: Sistema di badge sbloccabili in base alle performance.
-- 🔊 **Feedback Sonoro**: Effetti 8-bit per un'esperienza immersiva.
-- 🌗 **Temi Dinamici**: Supporto per modalità Scura, Chiara e Retro.
+### Data & Feedback
+- 📊 **Advanced Analytics**: Dashboard with charts for agent performance, completion rates, and model distribution.
+- 📥 **Data Export**: Export activity logs and task reports in CSV or JSON format.
+- 🏆 **Achievements**: Unlockable badge system based on performance.
+- 🔊 **Sound Feedback**: 8-bit sound effects for an immersive experience.
+- 🌗 **Dynamic Themes**: Support for Dark, Light, and Retro modes.
 
 ## 🚀 Quick Start
 
-### Prerequisiti
+### Prerequisites
 - Node.js 18+
-- Docker (opzionale)
+- Docker & Docker Compose (optional)
 
-### Installazione
+### Installation
 
 ```bash
-# Clona la repository
+# Clone the repository
 git clone https://github.com/MattiaPell/openclaw-pixel-office.git
 cd openclaw-pixel-office
 
-# Installa dipendenze
+# Install dependencies
 npm install
 
-# Avvia in locale
+# Start development server
 npm run dev
 ```
 
 ### Docker
 
+Before running with Docker Compose, you must create the external network:
+
 ```bash
-# Costruisci e avvia
+docker network create openclaw-net
+```
+
+Then you can start the services:
+
+```bash
+# Using Docker Compose (Recommended - includes API Server)
+docker-compose up -d
+
+# The dashboard will be available at http://localhost:3003
+```
+
+Alternatively, using npm scripts (Dashboard only):
+
+```bash
+# Build and run
 npm run docker:build
 npm run docker:run
 
-# La dashboard sarà disponibile su http://localhost:3000
+# The dashboard will be available at http://localhost:3000
 ```
 
-## 🎮 Organizzazione del Lavoro
+## ⚙️ Configuration
 
-### 🏢 Office (Ufficio)
-La vista panoramica dove puoi vedere i tuoi agenti interagire con l'ambiente pixel-art. Gli agenti cambiano animazione in base al loro stato attuale.
+The application can be configured using environment variables. Create a `.env` file in the root directory based on `.env.example`.
 
-### 👥 Agenti
-Gestisci la tua squadra di agenti OpenClaw. Puoi aggiungere nuovi agenti, modificare le loro identità e modelli, o rimuoverli dalla dashboard.
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `VITE_OPENCLAW_API_URL` | No | `http://localhost:3004` | URL of the internal API server. |
+| `VITE_OPENCLAW_GATEWAY_URL` | No | `http://localhost:18789` | URL of the OpenClaw Gateway. |
+| `VITE_OPENCLAW_GATEWAY_TOKEN` | No | — | Bearer token for Gateway authentication. |
+| `VITE_AGENTS` | No | — | Optional JSON string for default agents fallback. |
 
-### 📋 Task (Kanban)
-Organizza il lavoro tramite una board Kanban intuitiva:
-- **Da fare**: Task appena creati.
-- **In Corso**: Task assegnati ed in fase di elaborazione.
-- **Completato**: Archivio dei lavori terminati con successo.
+## 🛠️ Internal API Server
 
-### 📜 Attività
-Un log dettagliato e cronologico di tutte le azioni avvenute nel sistema, utile per il debugging e il monitoraggio delle performance.
+The project includes an `api-server.js` that acts as a bridge between the OpenClaw filesystem and the dashboard. It:
+- Reads session data from `~/.openclaw/agents/main/sessions/sessions.json`.
+- Exposes REST endpoints for agents and sessions.
+- Handles CORS and security headers for the dashboard.
 
-## 🛠️ Stack Tecnologico
+To run it locally:
+```bash
+node api-server.js
+```
 
-- **React 18** - Framework UI
-- **Vite** - Build tool ultra-veloce
-- **CSS Moderno** - Glassmorphism, variabili CSS e animazioni avanzate
-- **WebSocket** - Aggiornamenti real-time
-- **localStorage** - Persistenza dei dati in locale
-
-## 📁 Struttura Progetto
+## 📁 Project Structure
 
 ```
 openclaw-pixel-office/
 ├── src/
-│   ├── components/       # Componenti React
-│   │   ├── Sidebar.jsx          # Navigazione principale
-│   │   ├── OfficePage.jsx       # Pagina Ufficio
-│   │   ├── AgentsPage.jsx       # Pagina Gestione Agenti
-│   │   ├── TasksPage.jsx        # Pagina Kanban Task
-│   │   ├── ActivityPage.jsx     # Pagina Log Attività
-│   │   ├── OfficeScene.jsx      # Scena Pixel Art
-│   │   ├── AgentList.jsx        # Lista/Card Agenti
+│   ├── components/       # React Components
+│   │   ├── Sidebar.jsx          # Main navigation
+│   │   ├── OfficePage.jsx       # Office view
+│   │   ├── AgentsPage.jsx       # Agent management
+│   │   ├── TasksPage.jsx        # Kanban board
+│   │   ├── ActivityPage.jsx     # Activity logs
+│   │   ├── OfficeScene.jsx      # Pixel art scene
 │   │   └── ...
 │   ├── hooks/
-│   │   └── useOpenClawAPI.js    # Logica API e stato
+│   │   └── useOpenClawAPI.js    # API logic and state management
+│   ├── utils/
+│   │   ├── dragDrop.js          # Kanban drag & drop utility
+│   │   └── exportUtils.ts       # CSV/JSON export utilities
 │   ├── styles/
-│   │   └── *.css                # Stili modulari
+│   │   └── *.css                # Modular styles
 │   ├── App.jsx
 │   └── main.jsx
+├── api-server.js         # Backend bridge for OpenClaw data
 └── ...
 ```
 
-## 🚀 Evoluzioni Future (Roadmap)
+## 🚀 Roadmap
 
-Siamo costantemente al lavoro per rendere l'ufficio degli agenti più efficiente e divertente. Ecco alcune delle evoluzioni pianificate:
+### ✅ Implemented
+- [x] **Original Dashboard Data Visualization**
+- [x] **Humanoid Agent Design**: Updated pixel art style with full body.
+- [x] 📊 **Advanced Analytics**: Charts for performance and model distribution.
+- [x] 📥 **Data Export**: Support for CSV and JSON formats.
+- [x] 🌗 **Core Themes**: Dark, Light, and Retro modes.
 
-### Alta priorità
-- [ ] **Visualizzazione dei dati della dashboard originale**
-- [ ] **Nuovo design per gli agent**: Uno stile più umano con il corpo completo.
-- [ ] 📊 **Advanced Analytics**: Dashboard con grafici sulle performance degli agenti, tempi medi di completamento e statistiche di utilizzo modelli.
-- [ ] 🌿 **Nuovi Temi & Ambienti**: Ambientazioni alternative per l'ufficio (es. Cyberpunk City, Foresta Incantata, Base Spaziale).
-### Media Priorità
-- [ ] 📥 **Esportazione Dati**: Possibilità di scaricare i log di attività e i report dei task in formato CSV o JSON.
-- [ ] 📱 **Mobile Optimization (PWA)**: Miglioramento dell'interfaccia per dispositivi mobili e installazione come Progressive Web App.
-### Bassa priorità
-- [ ] 🔔 **Notifiche Push**: Ricevi avvisi sul browser quando un task viene completato o se un agente richiede attenzione.
-- [ ] 🔑 **Multi-user & Auth**: Sistema di login per gestire uffici separati per diversi utenti o team.
-- [ ] 🤖 **Integrazione Multi-Provider**: Supporto nativo per connettersi contemporaneamente a più gateway OpenClaw.
+### 🚧 Planned
+- [ ] 🌿 **New Environments**: Alternative office settings (e.g., Cyberpunk City, Enchanted Forest).
+- [ ] 📱 **Mobile Optimization (PWA)**: Improved mobile interface and PWA support.
+- [ ] 🔔 **Push Notifications**: Browser alerts for task completion.
+- [ ] 🔑 **Multi-user & Auth**: Login system for separate offices.
+- [ ] 🤖 **Multi-Provider Integration**: Support for multiple OpenClaw gateways simultaneously.
 
-## 🤝 Contributi
+## 🤝 Contributing
 
-Le pull request sono benvenute! Per modifiche maggiori, apri prima una issue per discutere cosa vorresti cambiare.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
-## 📄 Licenza
+## 📄 License
 
 [MIT](https://choosealicense.com/licenses/mit/)
 
 ---
 
-_Sviluppato con ❤️, pixel art e un tocco di modernità_
+_Developed with ❤️, pixel art, and a touch of modernity_
