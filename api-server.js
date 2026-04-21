@@ -60,7 +60,8 @@ function getAgents() {
     }
     
     // spec: gateway/openai-http-api#model-list-and-agent-routing (exclude sub-agents)
-    if (type !== 'dreaming') {
+    const isSubAgent = type === 'dreaming' || key.includes('dreaming') || key.includes(':sub:');
+    if (!isSubAgent) {
       agents.push({
         id: session.sessionId || key,
         name,
@@ -124,11 +125,17 @@ function handleRequest(req, res) {
     // Support URL-encoded model IDs like openclaw%2Fdefault
     agentId = decodeURIComponent(agentId);
 
+    // spec: gateway/openai-http-api#agent-first-model-contract (support openclaw: and openclaw/ formats)
+    const normalizedId = agentId.replace(':', '/');
+    const compatId = agentId.includes('/') ? agentId.replace('/', ':') : agentId;
+
     const agents = getAgents();
     const agent = agents.find(a =>
       a.id === agentId ||
       a.sessionKey === agentId ||
-      a.model === agentId
+      a.model === agentId ||
+      a.model === normalizedId ||
+      a.model === compatId
     );
     
     if (agent) {
