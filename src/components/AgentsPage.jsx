@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, memo } from 'react'
 import AgentAvatar from './AgentAvatar'
 import '../styles/AgentsPage.css'
 
-const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
+const AgentsPage = memo(({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
   const [showModal, setShowModal] = useState(false)
   const [editingAgent, setEditingAgent] = useState(null)
   const [formData, setFormData] = useState({ name: '', identity: '', model: '' })
@@ -108,6 +108,6 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
       )}
     </div>
   )
-}
+})
 
 export default AgentsPage
