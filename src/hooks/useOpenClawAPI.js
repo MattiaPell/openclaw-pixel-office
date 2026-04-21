@@ -5,6 +5,23 @@ const TASKS_KEY = 'openclaw-office-tasks'
 const LOG_KEY = 'openclaw-office-log'
 const ACHIEVEMENTS_KEY = 'openclaw-office-achievements'
 
+// Use API server if available, fallback to direct gateway or env
+const API_URL = import.meta.env.VITE_OPENCLAW_API_URL
+const GATEWAY_URL = import.meta.env.VITE_OPENCLAW_GATEWAY_URL
+const GATEWAY_TOKEN = import.meta.env.VITE_OPENCLAW_GATEWAY_TOKEN
+
+// Achievement definitions moved outside hook to avoid re-allocation
+const ACHIEVEMENT_DEFS = [
+  { id: 'first_task', name: 'Primo Passo', desc: 'Completa il primo task', icon: '🎯', check: (a) => a.completedTasks >= 1 },
+  { id: 'speedster', name: 'Speedster', desc: 'Completa 3 task in meno di 1 ora', icon: '⚡', check: (a) => a.completedTasks >= 3 },
+  { id: 'marathon', name: 'Maratoneta', desc: 'Completa 10 task', icon: '🏃', check: (a) => a.completedTasks >= 10 },
+  { id: 'centurion', name: 'Centurione', desc: 'Completa 100 task', icon: '💯', check: (a) => a.completedTasks >= 100 },
+  { id: 'always_online', name: 'Sempre Online', desc: 'Usa la dashboard per 1 ora', icon: '🌐', check: (startTime) => Date.now() - startTime > 3600000 },
+  { id: 'task_master', name: 'Task Master', desc: 'Crea 20 task', icon: '📋', check: (_, totalTasks) => totalTasks >= 20 },
+  { id: 'early_bird', name: 'Mattutino', desc: 'Usa la dashboard alle 6 del mattino', icon: '🌅', check: () => new Date().getHours() === 6 },
+  { id: 'night_owl', name: 'Notturno', desc: 'Usa la dashboard dopo mezzanotte', icon: '🦉', check: () => new Date().getHours() === 0 || new Date().getHours() === 1 },
+]
+
 /**
  * Hook for managing OpenClaw agents, tasks, and activity logs.
  * Handles synchronization between local storage, internal API server, and OpenClaw Gateway.
@@ -39,11 +56,6 @@ export function useOpenClawAPI() {
   const [connectionMode, setConnectionMode] = useState('local')
   const logIdRef = useRef(0)
   const startTime = useRef(Date.now())
-
-  // Use API server if available, fallback to direct gateway or env
-  const API_URL = import.meta.env.VITE_OPENCLAW_API_URL
-  const GATEWAY_URL = import.meta.env.VITE_OPENCLAW_GATEWAY_URL
-  const GATEWAY_TOKEN = import.meta.env.VITE_OPENCLAW_GATEWAY_TOKEN
 
   const fetchFromApi = useCallback(async () => {
     if (!API_URL) return []
@@ -125,17 +137,6 @@ export function useOpenClawAPI() {
     return Array.from(merged.values())
   }, [fetchFromApi, fetchFromGateway])
 
-  // Achievement definitions
-  const ACHIEVEMENT_DEFS = [
-    { id: 'first_task', name: 'Primo Passo', desc: 'Completa il primo task', icon: '🎯', check: (a) => a.completedTasks >= 1 },
-    { id: 'speedster', name: 'Speedster', desc: 'Completa 3 task in meno di 1 ora', icon: '⚡', check: (a) => a.completedTasks >= 3 },
-    { id: 'marathon', name: 'Maratoneta', desc: 'Completa 10 task', icon: '🏃', check: (a) => a.completedTasks >= 10 },
-    { id: 'centurion', name: 'Centurione', desc: 'Completa 100 task', icon: '💯', check: (a) => a.completedTasks >= 100 },
-    { id: 'always_online', name: 'Sempre Online', desc: 'Usa la dashboard per 1 ora', icon: '🌐', check: () => Date.now() - startTime.current > 3600000 },
-    { id: 'task_master', name: 'Task Master', desc: 'Crea 20 task', icon: '📋', check: (_, totalTasks) => totalTasks >= 20 },
-    { id: 'early_bird', name: 'Mattutino', desc: 'Usa la dashboard alle 6 del mattino', icon: '🌅', check: () => new Date().getHours() === 6 },
-    { id: 'night_owl', name: 'Notturno', desc: 'Usa la dashboard dopo mezzanotte', icon: '🦉', check: () => new Date().getHours() === 0 || new Date().getHours() === 1 },
-  ]
 
   // Load saved state from localStorage on init
   useEffect(() => {
@@ -210,18 +211,24 @@ export function useOpenClawAPI() {
   }, [])
 
   // Check for new achievements
-  const checkAchievements = useCallback((agentId) => {
+  // Optimization: Moved from direct calls in state updaters to a centralized check
+  const checkAchievements = useCallback(() => {
     const earned = []
-    const agent = agents.find(a => a.id === agentId)
-    const completedCount = agent ? (agent.completedTasks || 0) : 0
     const totalTasksCreated = tasks.length
 
     ACHIEVEMENT_DEFS.forEach(def => {
       const alreadyEarned = achievements.find(a => a.id === def.id)
       if (!alreadyEarned) {
-        const check = def.id === 'task_master' 
-          ? def.check(null, totalTasksCreated)
-          : def.check({ completedTasks: completedCount }, totalTasksCreated)
+        let check = false;
+        if (def.id === 'always_online') {
+          check = def.check(startTime.current)
+        } else if (def.id === 'task_master') {
+          check = def.check(null, totalTasksCreated)
+        } else {
+          // Check if ANY agent meets the criteria
+          check = agents.some(agent => def.check({ completedTasks: agent.completedTasks || 0 }, totalTasksCreated))
+        }
+
         if (check) {
           earned.push({
             ...def,
@@ -240,6 +247,11 @@ export function useOpenClawAPI() {
       earned.forEach(a => addLogEntry('System', 'achievement', `🏆 Earned: ${a.name}`))
     }
   }, [agents, achievements, tasks])
+
+  // Centralized achievement tracking
+  useEffect(() => {
+    checkAchievements()
+  }, [agents, tasks, checkAchievements]) // Re-run whenever agents (completedTasks) or tasks (task_master) change
 
   // Add activity log entry
   const addLogEntry = useCallback((agentName, action, details) => {
@@ -329,7 +341,6 @@ export function useOpenClawAPI() {
           if (a.id === agentId && a.currentTaskId === taskId) {
             const newCompleted = (a.completedTasks || 0) + 1
             addLogEntry(a.name, 'completed', a.task || 'Task')
-            checkAchievements(agentId)
             return { ...a, status: 'idle', task: null, currentTaskId: null, completedTasks: newCompleted }
           }
           return a
@@ -357,7 +368,6 @@ export function useOpenClawAPI() {
     setTasks(prev => {
       const updated = [...prev, newTask]
       localStorage.setItem(TASKS_KEY, JSON.stringify(updated))
-      checkAchievements(null)
       return updated
     })
     addLogEntry('User', 'created_task', name)
@@ -406,7 +416,7 @@ export function useOpenClawAPI() {
     setLoading(true)
     const externalAgents = await fetchExternalAgents()
     if (externalAgents) {
-      setAgents(externalAgents)
+      setAgents(prev => JSON.stringify(prev) === JSON.stringify(externalAgents) ? prev : externalAgents)
       setConnectionMode('cloud')
       setIsOnline(true)
       setError(null)
@@ -418,13 +428,21 @@ export function useOpenClawAPI() {
   }, [fetchExternalAgents])
 
   // Periodic polling for cloud mode
+  // Optimization: Only update state if data has changed to prevent unnecessary re-renders
   useEffect(() => {
     if (connectionMode !== 'cloud') return
 
     const interval = setInterval(async () => {
       const externalAgents = await fetchExternalAgents()
       if (externalAgents) {
-        setAgents(externalAgents)
+        setAgents(prev => {
+          // Optimization: Referential stability for agents array
+          // Only trigger re-render if the content actually changed
+          if (JSON.stringify(prev) === JSON.stringify(externalAgents)) {
+            return prev
+          }
+          return externalAgents
+        })
         setIsOnline(true)
       } else {
         setIsOnline(false)
