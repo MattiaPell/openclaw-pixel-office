@@ -1,5 +1,6 @@
 import React, { useState, memo, useMemo } from 'react'
 import CreateTaskModal from './CreateTaskModal'
+import { downloadJSON, downloadCSV } from '../utils/exportUtils.ts'
 import '../styles/TasksPage.css'
 
 const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) => {
@@ -27,11 +28,23 @@ const TasksPage = memo(({ tasks, agents, onAssignTask, onDeleteTask, onCreateTas
     setShowCreateModal(false)
   }
 
+  const handleExportJSON = () => {
+    downloadJSON(tasks, 'tasks')
+  }
+
+  const handleExportCSV = () => {
+    downloadCSV(tasks, 'tasks')
+  }
+
   return (
     <div className="tasks-page">
       <div className="page-header">
         <h2 className="pixel-font">TASK</h2>
-        <button className="btn-primary" onClick={() => setShowCreateModal(true)}>+ NUOVO TASK</button>
+        <div className="header-actions">
+          <button className="btn-secondary" onClick={handleExportJSON}>JSON</button>
+          <button className="btn-secondary" onClick={handleExportCSV}>CSV</button>
+          <button className="btn-primary" onClick={() => setShowCreateModal(true)}>+ NUOVO TASK</button>
+        </div>
       </div>
 
       {showCreateModal && (

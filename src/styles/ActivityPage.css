@@ -5,6 +5,17 @@
   flex-direction: column;
 }
 
+.activity-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activity-page .header-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .activity-container {
   flex: 1;
   overflow: hidden;
