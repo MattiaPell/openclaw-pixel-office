@@ -16,7 +16,7 @@ export default function AgentModal({ agent, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
         
         <div className="agent-header">
           <AgentAvatar status={agent.status} size="large" id={agent.id} />

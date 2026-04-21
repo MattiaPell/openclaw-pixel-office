@@ -61,7 +61,13 @@ const TasksPage = ({ tasks, agents, onAssignTask, onDeleteTask, onCreateTask }) 
                         </select>
                       </div>
                     )}
-                    <button className="btn-icon delete" onClick={() => onDeleteTask(task.id)}>🗑️</button>
+                    <button
+                      className="btn-icon delete"
+                      onClick={() => onDeleteTask(task.id)}
+                      aria-label="Elimina task"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))}

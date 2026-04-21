@@ -60,8 +60,22 @@ const AgentsPage = ({ agents, onAddAgent, onUpdateAgent, onDeleteAgent }) => {
               </div>
             </div>
             <div className="agent-card-footer">
-              <button className="btn-icon" onClick={() => handleOpenEdit(agent)} title="Modifica">✏️</button>
-              <button className="btn-icon delete" onClick={() => onDeleteAgent(agent.id)} title="Elimina">🗑️</button>
+              <button
+                className="btn-icon"
+                onClick={() => handleOpenEdit(agent)}
+                title="Modifica"
+                aria-label="Modifica agente"
+              >
+                ✏️
+              </button>
+              <button
+                className="btn-icon delete"
+                onClick={() => onDeleteAgent(agent.id)}
+                title="Elimina"
+                aria-label="Elimina agente"
+              >
+                🗑️
+              </button>
             </div>
           </div>
         ))}

@@ -14,7 +14,7 @@ export default function CreateTaskModal({ onSubmit, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content task-modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onClose} aria-label="Chiudi">✕</button>
         
         <h2>CREA NUOVO TASK</h2>
         
