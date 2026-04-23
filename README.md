@@ -72,6 +72,8 @@ npm run docker:run
 
 The application can be configured using environment variables. Create a `.env` file in the root directory based on `.env.example`.
 
+For more details on how to connect to an OpenClaw instance, see the [Connection Guide](docs/connection.md).
+
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `VITE_OPENCLAW_API_URL` | No | `http://localhost:3004` | URL of the internal API server. |
